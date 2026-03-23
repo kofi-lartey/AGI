@@ -1,0 +1,30 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+  functions = "netlify/functions"
+  node_version = "18"
+
+[dev]
+  command = "npm run dev"
+  targetPort = 5173
+
+# Environment variables available in build and functions
+[context.production.environment]
+  NODE_VERSION = "18"
+
+[context.deploy-preview.environment]
+  NODE_VERSION = "18"
+
+[context.branch-deploy.environment]
+  NODE_VERSION = "18"
+
+# Redirects for SPA routing
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Netlify function configuration
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"

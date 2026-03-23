@@ -1,0 +1,222 @@
+import React, { useState, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Search, ArrowRight, ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { useBlog } from '../context/BlogContext';
+import { useTheme } from '../context/ThemeContext';
+
+const BlogPage = () => {
+  const { publishedPosts, categories, filterPosts } = useBlog();
+  const { isDark } = useTheme();
+  
+  const [filter, setFilter] = useState('All Posts');
+  const [searchQuery, setSearchQuery] = useState('');
+  
+  // Include "All Posts" in categories
+  const allCategories = ['All Posts', ...categories];
+
+  const filteredPosts = useMemo(() => {
+    return filterPosts(filter, searchQuery);
+  }, [filter, searchQuery, filterPosts]);
+
+  return (
+    <div className={`min-h-screen font-sans ${
+      isDark 
+        ? 'bg-gray-900 text-white' 
+        : 'bg-white text-black'
+    }`}>
+
+      {/* Header Section */}
+      <header className={`pt-28 pb-12 px-6 max-w-7xl mx-auto ${isDark ? 'border-b border-gray-800' : 'border-b border-gray-100'}`}>
+        <div className="flex items-center gap-2 mb-4">
+          <span className="text-red-600 font-bold text-xs uppercase tracking-widest">Perspectives</span>
+          <span className={isDark ? 'text-gray-600' : 'text-gray-300'}>/</span>
+          <span className={isDark ? 'text-gray-500 font-medium text-xs uppercase tracking-widest' : 'text-gray-400 font-medium text-xs uppercase tracking-widest'}>Industry Insights</span>
+        </div>
+        <h1 className={`text-5xl md:text-6xl font-black mb-6 ${
+          isDark ? 'text-white' : 'text-gray-900'
+        }`}>
+          Our <span className="text-red-600">Blog</span>
+        </h1>
+        <p className={isDark ? 'text-gray-400 text-lg max-w-2xl leading-relaxed' : 'text-gray-500 text-lg max-w-2xl leading-relaxed'}>
+          The pulse of Ghanaian industry. Explore expert analysis, policy updates, and strategic advice for the modern enterprise.
+        </p>
+      </header>
+
+      {/* Control Bar: Search & Filters */}
+      <section className={`sticky top-14 md:top-16 z-30 backdrop-blur-md py-4 md:py-6 px-4 md:px-6 mb-8 md:mb-12 ${
+        isDark 
+          ? 'bg-gray-900/80 border-b border-gray-800' 
+          : 'bg-white/80 border-b border-gray-100'
+      }`}>
+        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between items-center gap-6">
+
+          {/* Smart Search */}
+          <div className="relative w-full lg:w-96">
+            <Search className={`absolute left-4 top-1/2 -translate-y-1/2 ${isDark ? 'text-gray-500' : 'text-gray-400'}`} size={18} />
+            <input
+              type="text"
+              placeholder="Search for posts..."
+              className={`w-full rounded-lg py-3 pl-12 pr-4 focus:ring-2 focus:ring-red-600 outline-none transition-all ${
+                isDark 
+                  ? 'bg-gray-800 border border-gray-700 text-white placeholder-gray-500' 
+                  : 'bg-gray-50 border border-gray-200 text-gray-900 placeholder-gray-400'
+              }`}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+
+          {/* Category Filters */}
+          <div className="flex gap-2 overflow-x-auto no-scrollbar w-full lg:w-auto pb-2 lg:pb-0">
+            {allCategories.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setFilter(cat)}
+                className={`px-5 py-2 rounded-lg text-sm font-bold whitespace-nowrap transition-all ${
+                  filter === cat
+                    ? 'bg-red-600 text-white shadow-lg'
+                    : isDark
+                      ? 'bg-gray-800 border border-gray-700 text-gray-400 hover:bg-gray-700 hover:text-white'
+                      : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50'
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Blog Grid */}
+      <main className="max-w-7xl mx-auto px-6 pb-24">
+        <motion.div
+          layout
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-16"
+        >
+          <AnimatePresence mode='popLayout'>
+            {filteredPosts.map((post) => (
+              <BlogCard key={post.id} post={post} isDark={isDark} />
+            ))}
+          </AnimatePresence>
+        </motion.div>
+
+        {/* Smart Empty State */}
+        {filteredPosts.length === 0 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="py-20 text-center"
+          >
+            <p className={isDark ? 'text-gray-400 text-xl' : 'text-gray-400 text-xl'}>No posts found matching your search.</p>
+            <button 
+              onClick={() => { setFilter('All Posts'); setSearchQuery(''); }} 
+              className="mt-4 text-red-600 font-bold underline"
+            >
+              Clear all filters
+            </button>
+          </motion.div>
+        )}
+
+        {/* Pagination */}
+        {filteredPosts.length > 0 && (
+          <div className="mt-20 flex justify-center items-center gap-4">
+            <button className={`p-2 border rounded-lg ${
+              isDark 
+                ? 'border-gray-700 hover:bg-gray-800 text-gray-400' 
+                : 'border-gray-200 hover:bg-gray-50 text-gray-400'
+            }`}>
+              <ChevronLeft />
+            </button>
+            <button className="w-10 h-10 bg-red-600 text-white rounded-lg font-bold">1</button>
+            <button className={`w-10 h-10 border rounded-lg font-bold ${
+              isDark 
+                ? 'border-gray-700 hover:bg-gray-800 text-gray-300' 
+                : 'border-gray-200 hover:bg-gray-50 text-gray-700'
+            }`}>2</button>
+            <button className={`w-10 h-10 border rounded-lg font-bold ${
+              isDark 
+                ? 'border-gray-700 hover:bg-gray-800 text-gray-300' 
+                : 'border-gray-200 hover:bg-gray-50 text-gray-700'
+            }`}>3</button>
+            <span className={isDark ? 'text-gray-500 px-2' : 'text-gray-400 px-2'}>...</span>
+            <button className={`w-10 h-10 border rounded-lg font-bold ${
+              isDark 
+                ? 'border-gray-700 hover:bg-gray-800 text-gray-300' 
+                : 'border-gray-200 hover:bg-gray-50 text-gray-700'
+            }`}>12</button>
+            <button className={`p-2 border rounded-lg ${
+              isDark 
+                ? 'border-gray-700 hover:bg-gray-800 text-gray-400' 
+                : 'border-gray-200 hover:bg-gray-50 text-gray-400'
+            }`}>
+              <ChevronRight />
+            </button>
+          </div>
+        )}
+      </main>
+    </div>
+  );
+};
+
+const BlogCard = ({ post, isDark }) => (
+  <motion.article
+    layout
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    exit={{ opacity: 0, scale: 0.9 }}
+    className="group flex flex-col h-full"
+  >
+    <div className={`relative aspect-[16/10] overflow-hidden rounded-2xl mb-6 shadow-sm ${
+      isDark ? 'border border-gray-700' : 'border border-gray-100'
+    }`}>
+      <img
+        src={post.image}
+        alt={post.title}
+        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+      />
+      <div className="absolute top-4 left-4">
+        <span className={`backdrop-blur-sm shadow-sm text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-md ${
+          isDark 
+            ? 'bg-gray-900/80 text-red-400 border border-gray-700' 
+            : 'bg-white/95 text-red-800 border border-red-50'
+        }`}>
+          {post.category}
+        </span>
+      </div>
+    </div>
+
+    <div className="flex flex-col flex-1">
+      <h3 className={`text-2xl font-bold leading-tight mb-4 group-hover:text-red-600 transition-colors ${
+        isDark ? 'text-white' : 'text-gray-900'
+      }`}>
+        {post.title}
+      </h3>
+      <p className={`text-sm leading-relaxed mb-6 flex-1 ${
+        isDark ? 'text-gray-400' : 'text-gray-500'
+      }`}>
+        {post.excerpt}
+      </p>
+
+      <div className={`pt-6 flex justify-between items-center ${
+        isDark ? 'border-t border-gray-800' : 'border-t border-gray-100'
+      }`}>
+        <span className={`text-xs font-medium flex items-center gap-2 ${
+          isDark ? 'text-gray-500' : 'text-gray-400'
+        }`}>
+          <Calendar size={14} className={isDark ? 'text-gray-600' : 'text-gray-300'} /> 
+          {post.date}
+        </span>
+        <Link to={`/blog/${post.id}`}>
+          <button className={`text-xs font-black uppercase flex items-center gap-1 group-hover:gap-2 transition-all ${
+            isDark ? 'text-red-400' : 'text-red-700'
+          }`}>
+            Read More <ArrowRight size={14} />
+          </button>
+        </Link>
+      </div>
+    </div>
+  </motion.article>
+);
+
+export default BlogPage;

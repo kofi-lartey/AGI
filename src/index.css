@@ -1,0 +1,294 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-red: #c40404;
+  --color-brand-dark: #0f0f0f;
+  --color-brand-card: #161616;
+  
+  --font-serif: "Playfair Display", serif;
+  --font-sans: "Inter", sans-serif;
+
+  --animate-ping: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
+
+  @keyframes ping {
+    75%, 100% {
+      transform: scale(2);
+      opacity: 0;
+    }
+  }
+}
+
+/* Coffee Theme Colors */
+@theme {
+  /* Light Mode - Cream & Latte */
+  --color-cream-50: #fefcf9;
+  --color-cream-100: #fdf7ef;
+  --color-cream-200: #faecd8;
+  --color-cream-300: #f5ddbd;
+  --color-cream-400: #edc99a;
+  --color-cream-500: #e3b273;
+  
+  /* Dark Mode - Espresso & Charcoal */
+  --color-espresso-900: #2d211a;
+  --color-espresso-950: #1a1310;
+  --color-charcoal-800: #2a2a2a;
+  --color-charcoal-900: #1a1a1a;
+  
+  /* Accent - Coffee Cherry Red */
+  --color-cherry-500: #d94a34;
+  --color-cherry-600: #c43a26;
+  --color-cherry-700: #a32e20;
+  
+  /* Burnt Sienna */
+  --color-sienna-500: #a0522d;
+  --color-sienna-600: #8b4513;
+}
+
+/* Base styles with theme support */
+@layer base {
+  /* Light Mode Defaults - Red & White Theme */
+  :root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #fef2f2;
+    --bg-card: #ffffff;
+    --bg-tertiary: #f8fafc;
+    --text-primary: #1a1a1a;
+    --text-secondary: #404040;
+    --text-muted: #737373;
+    --border-color: #e5e5e5;
+    --border-light: #f0f0f0;
+    --accent: #dc2626;
+    --accent-hover: #b91c1c;
+    --accent-light: #fef2f2;
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+  }
+
+  /* Dark Mode - Red & White with Dark Gray Background */
+  .dark {
+    --bg-primary: #171717;
+    --bg-secondary: #1f1f1f;
+    --bg-card: #262626;
+    --bg-tertiary: #2a2a2a;
+    --text-primary: #ffffff;
+    --text-secondary: #e5e5e5;
+    --text-muted: #a3a3a3;
+    --border-color: #404040;
+    --border-light: #333333;
+    --accent: #ef4444;
+    --accent-hover: #f87171;
+    --accent-light: #2a1a1a;
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5);
+  }
+
+  /* Smooth transitions for theme switching */
+  body {
+    @apply bg-[var(--bg-primary)] text-[var(--text-primary)] font-sans antialiased;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  /* Apply CSS variable colors to utility classes */
+  .bg-theme-primary {
+    background-color: var(--bg-primary);
+  }
+  
+  .bg-theme-secondary {
+    background-color: var(--bg-secondary);
+  }
+  
+  .bg-theme-tertiary {
+    background-color: var(--bg-tertiary);
+  }
+  
+  .bg-theme-card {
+    background-color: var(--bg-card);
+  }
+  
+  .text-theme-primary {
+    color: var(--text-primary);
+  }
+  
+  .text-theme-secondary {
+    color: var(--text-secondary);
+  }
+  
+  .text-theme-muted {
+    color: var(--text-muted);
+  }
+  
+  .border-theme {
+    border-color: var(--border-color);
+  }
+  
+  .border-theme-light {
+    border-color: var(--border-light);
+  }
+  
+  .text-accent {
+    color: var(--accent);
+  }
+  
+  .bg-accent {
+    background-color: var(--accent);
+  }
+  
+  .hover-accent:hover {
+    background-color: var(--accent-hover);
+  }
+
+  .bg-accent-light {
+    background-color: var(--accent-light);
+  }
+
+  .shadow-theme {
+    box-shadow: var(--shadow-md);
+  }
+
+  .shadow-theme-lg {
+    box-shadow: var(--shadow-lg);
+  }
+}
+
+/* Custom scrollbar for dark mode */
+.dark ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #2d211a;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #524032;
+  border-radius: 4px;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #6f5240;
+}
+
+/* Light mode scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #faecd8;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d4c4b5;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #bfa992;
+}
+
+/* No scrollbar utility */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Line clamp utilities */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Prose styling for blog content */
+.prose {
+  max-width: 65ch;
+}
+
+.prose p {
+  margin-bottom: 1.5em;
+}
+
+.prose h2 {
+  font-size: 1.5rem;
+  font-weight: 900;
+  margin-top: 2em;
+  margin-bottom: 0.75em;
+}
+
+.prose h3 {
+  font-size: 1.25rem;
+  font-weight: 900;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+}
+
+.prose ul {
+  list-style-type: disc;
+  padding-left: 1.5em;
+  margin-bottom: 1.5em;
+}
+
+.prose li {
+  margin-bottom: 0.5em;
+}
+
+.prose blockquote {
+  font-style: italic;
+}
+
+/* Focus styles */
+*:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Selection styles */
+::selection {
+  background-color: var(--accent);
+  color: white;
+}
+
+/* Animation utilities */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.5s ease-out;
+}
