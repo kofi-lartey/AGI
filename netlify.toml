@@ -10,13 +10,13 @@
 
 # Environment variables available in build and functions
 [context.production.environment]
-  NODE_VERSION = "18"
+  NODE_VERSION = "20"
 
 [context.deploy-preview.environment]
-  NODE_VERSION = "18"
+  NODE_VERSION = "20"
 
 [context.branch-deploy.environment]
-  NODE_VERSION = "18"
+  NODE_VERSION = "20net updated"
 
 # Redirects for SPA routing
 [[redirects]]
