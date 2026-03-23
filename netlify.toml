@@ -16,7 +16,7 @@
   NODE_VERSION = "20"
 
 [context.branch-deploy.environment]
-  NODE_VERSION = "20net updated"
+  NODE_VERSION = "20"
 
 # Redirects for SPA routing
 [[redirects]]
