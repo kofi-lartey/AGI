@@ -2,7 +2,7 @@
   command = "npm install && npm run build"
   publish = "dist"
   functions = "netlify/functions"
-  node_version = "18"
+  node_version = "20"
 
 [dev]
   command = "npm run dev"
