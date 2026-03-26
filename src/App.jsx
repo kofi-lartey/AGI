@@ -1,10 +1,12 @@
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
+import { useEffect, useRef } from "react";
 import MainLayout from "./Layout/MainLayout";
 import HomePage from "./Pages/HomePage";
 import { ThemeProvider } from "./context/ThemeContext";
 import { BlogProvider } from "./context/BlogContext";
-import { LoadingProvider } from "./context/LoadingContext";
+import { MediaProvider } from "./context/MediaContext";
+import { LoadingProvider, useLoading } from "./context/LoadingContext";
 import { SupabaseProvider } from "./context/SupabaseContext";
 import LoadingOverlay from "./Componets/LoadingOverlay";
 import AboutPage from "./Pages/AboutPage";
@@ -59,6 +61,28 @@ const AnimatedPage = ({ children }) => {
 // Component to handle route changes with loading
 const RouteHandler = () => {
   const location = useLocation();
+  const { startLoading, stopLoading } = useLoading();
+  const prevPathRef = useRef(null);
+  
+  // Trigger loading on route changes
+  useEffect(() => {
+    // Skip on first render
+    if (prevPathRef.current === null) {
+      prevPathRef.current = location.pathname;
+      return;
+    }
+    
+    // Only start loading when actually changing routes
+    if (prevPathRef.current !== location.pathname) {
+      startLoading('Loading page...');
+      prevPathRef.current = location.pathname;
+      
+      // Auto-stop loading after page renders (short delay to allow page to load)
+      setTimeout(() => {
+        stopLoading();
+      }, 800);
+    }
+  }, [location.pathname, startLoading, stopLoading]);
   
   return (
     <AnimatePresence mode="wait">
@@ -137,14 +161,16 @@ function App() {
   return (
     <ThemeProvider>
       <SupabaseProvider>
-        <BlogProvider>
-          <LoadingProvider>
-            <BrowserRouter>
-              <LoadingOverlay />
-              <RouteHandler />
-            </BrowserRouter>
-          </LoadingProvider>
-        </BlogProvider>
+        <LoadingProvider>
+          <BlogProvider>
+            <MediaProvider>
+              <BrowserRouter>
+                <LoadingOverlay />
+                <RouteHandler />
+              </BrowserRouter>
+            </MediaProvider>
+          </BlogProvider>
+        </LoadingProvider>
       </SupabaseProvider>
     </ThemeProvider>
   );

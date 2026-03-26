@@ -5,22 +5,47 @@ const LoadingContext = createContext();
 export function LoadingProvider({ children }) {
   const [isLoading, setIsLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState('');
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [refreshMessage, setRefreshMessage] = useState('');
 
+  // General loading (for page navigation, etc.)
   const startLoading = useCallback((message = 'Loading...') => {
     setLoadingMessage(message);
     setIsLoading(true);
+    setIsRefreshing(false);
   }, []);
 
   const stopLoading = useCallback(() => {
     setIsLoading(false);
     setLoadingMessage('');
+    setIsRefreshing(false);
   }, []);
 
+  // Refresh-specific loading (for data refresh operations)
+  const startRefreshing = useCallback((message = 'Refreshing...') => {
+    setRefreshMessage(message);
+    setIsRefreshing(true);
+    setIsLoading(false);
+  }, []);
+
+  const stopRefreshing = useCallback(() => {
+    setIsRefreshing(false);
+    setRefreshMessage('');
+  }, []);
+
+  // Combined loading state check
+  const isAnyLoading = isLoading || isRefreshing;
+  const currentMessage = isRefreshing ? refreshMessage : loadingMessage;
+
   const value = {
-    isLoading,
-    loadingMessage,
+    isLoading: isAnyLoading,
+    loadingMessage: currentMessage,
+    isRefreshing,
+    refreshMessage,
     startLoading,
-    stopLoading
+    stopLoading,
+    startRefreshing,
+    stopRefreshing
   };
 
   return (

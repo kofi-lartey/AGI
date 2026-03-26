@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLoading } from '../context/LoadingContext';
 import { useTheme } from '../context/ThemeContext';
@@ -24,7 +24,7 @@ const LoadingOverlay = () => {
             exit={{ opacity: 0 }}
             className={`absolute inset-0 ${
               isDark 
-                ? 'bg-gray-900/95' 
+                ? 'bg-black/95' 
                 : 'bg-white/95'
             }`}
           />

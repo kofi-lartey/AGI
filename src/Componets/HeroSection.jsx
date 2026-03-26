@@ -1,146 +1,176 @@
-import { useEffect, useState } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
-import { Play } from "lucide-react";
-import { useTheme } from "../context/ThemeContext";
+import { useState, useEffect, useRef } from "react";
+import { motion, useInView } from "framer-motion";
+import { Play, ArrowRight, Sparkles } from "lucide-react";
 
-const headlines = [
-    "Powering Industry Forward",
-    "Where Innovation Meets Scale",
-    "Building Africa's Industrial Future",
-    "Industry. Evolved."
+// ============================================================================
+// CONSTANTS
+// ============================================================================
+const HEADLINES = [
+  "Powering Industry Forward",
+  "Where Innovation Meets Scale",
+  "Building Africa's Future",
+  "Industry. Evolved."
 ];
 
-const fallbackImage = "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80";
+const STATS = [
+  { value: "500+", label: "Members" },
+  { value: "60+", label: "Years" },
+  { value: "12", label: "Sectors" },
+];
 
+const VIDEO_SRC = "https://www.pexels.com/download/video/19115722/";
+const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80";
+
+// ============================================================================
+// MAIN COMPONENT
+// ============================================================================
 const HeroSection = () => {
-    const [index, setIndex] = useState(0);
-    const [displayText, setDisplayText] = useState("");
-    const [videoError, setVideoError] = useState(false);
-    const { scrollY } = useScroll();
-    const { isDark } = useTheme();
+  const containerRef = useRef(null);
+  const [currentHeadlineIndex, setCurrentHeadlineIndex] = useState(0);
+  const [displayText, setDisplayText] = useState("");
+  const [videoError, setVideoError] = useState(false);
+  const isInView = useInView(containerRef, { once: true });
 
-    const opacity = useTransform(scrollY, [0, 300], [1, 0]);
-    const scale = useTransform(scrollY, [0, 300], [1, 0.95]);
+  // Typing Effect - Runs whenever headline index changes
+  useEffect(() => {
+    const text = HEADLINES[currentHeadlineIndex];
+    setDisplayText(""); // Clear before typing
+    
+    let i = 0;
+    const typingInterval = setInterval(() => {
+      if (i < text.length) {
+        setDisplayText(text.substring(0, i + 1));
+        i++;
+      } else {
+        clearInterval(typingInterval);
+      }
+    }, 60);
 
-    // Typing effect
-    useEffect(() => {
-        let i = 0;
-        const text = headlines[index];
-        setDisplayText("");
+    return () => clearInterval(typingInterval);
+  }, [currentHeadlineIndex]);
 
-        const typing = setInterval(() => {
-            setDisplayText((prev) => prev + text.charAt(i));
-            i++;
-            if (i >= text.length) clearInterval(typing);
-        }, 50);
+  // Headline Rotation - Rotate to next headline after 5 seconds
+  useEffect(() => {
+    const rotateInterval = setInterval(() => {
+      setCurrentHeadlineIndex((prev) => (prev + 1) % HEADLINES.length);
+    }, 5000);
 
-        return () => clearInterval(typing);
-    }, [index]);
+    return () => clearInterval(rotateInterval);
+  }, []);
 
-    // Rotate headlines
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setIndex((prev) => (prev + 1) % headlines.length);
-        }, 4000);
+  return (
+    <section
+      ref={containerRef}
+      className="relative h-screen w-full bg-[#050505] overflow-hidden flex flex-col items-center justify-center text-white"
+    >
+      {/* Background Visuals */}
+      <div className="absolute inset-0 z-0">
+        {!videoError ? (
+          <video
+            autoPlay loop muted playsInline
+            className="w-full h-full object-cover opacity-40 transition-opacity duration-1000"
+            onError={() => setVideoError(true)}
+          >
+            <source src={VIDEO_SRC} type="video/mp4" />
+          </video>
+        ) : (
+          <img src={FALLBACK_IMAGE} className="w-full h-full object-cover opacity-30" alt="Industrial" />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black" />
+        <div className="absolute inset-0 bg-grid opacity-10 pointer-events-none" />
+      </div>
 
-        return () => clearInterval(interval);
-    }, []);
+      {/* Main Content Container */}
+      <div className="relative z-10 flex flex-col items-center w-full max-w-6xl px-6">
 
-    // Cursor glow
-    const [mouse, setMouse] = useState({ x: 0, y: 0 });
-
-    useEffect(() => {
-        const move = (e) => {
-            setMouse({ x: e.clientX, y: e.clientY });
-        };
-        window.addEventListener("mousemove", move);
-        return () => window.removeEventListener("mousemove", move);
-    }, []);
-
-    return (
-        <motion.section
-            style={{ opacity, scale }}
-            className="relative h-screen w-full overflow-hidden flex items-center justify-center bg-gray-900"
+        {/* Badge - Smaller */}
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex items-center gap-2 px-3 py-1 rounded-full border border-red-500/30 bg-red-500/5 mb-6"
         >
-            {/* VIDEO BACKGROUND */}
-            {!videoError && (
-                <video
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                    poster={fallbackImage}
-                    onError={() => setVideoError(true)}
-                    className="absolute inset-0 w-full h-full object-cover opacity-40"
-                    src="https://www.pexels.com/download/video/19115722/"
-                />
-            )}
+          <Sparkles className="w-3 h-3 text-red-500" />
+          <span className="text-[9px] font-bold uppercase tracking-[0.25em] text-red-400">
+            Association of Ghana Industries
+          </span>
+        </motion.div>
 
-            {/* FALLBACK IMAGE */}
-            {videoError && (
-                <img
-                    src={fallbackImage}
-                    alt="Industrial Background"
-                    className="absolute inset-0 w-full h-full object-cover opacity-50"
-                />
-            )}
-
-            {/* DARK OVERLAY */}
-            <div className={`absolute inset-0 bg-gradient-to-r ${isDark 
-                ? 'from-gray-900 via-gray-900/70 to-gray-900/40' 
-                : 'from-white via-white/50 to-white'
-            }`} />
-
-            {/* CURSOR GLOW - Red Accent */}
-            <div
-                className="pointer-events-none absolute w-[400px] h-[400px] rounded-full bg-red-600/30 blur-3xl"
-                style={{
-                    left: mouse.x - 200,
-                    top: mouse.y - 200
-                }}
-            />
-
-            <div className="relative z-10 text-center px-6 max-w-4xl">
-                <span className={`text-xs tracking-[0.4em] uppercase ${isDark ? 'text-red-300' : 'text-red-600'}`}>
-                    Association of Ghana Industries
-                </span>
-
-                <h1 className={`mt-6 text-4xl md:text-7xl font-black uppercase leading-tight ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                    {displayText}
-                    <span className="text-red-500">|</span>
-                </h1>
-
-                <p className={`mt-6 text-sm md:text-lg max-w-2xl mx-auto leading-relaxed ${isDark ? 'text-gray-200' : 'text-gray-600'}`}>
-                    Empowering businesses to scale, innovate, and compete globally through
-                    strategic partnerships, policy advocacy, and industrial excellence.
-                </p>
-
-                <div className="flex justify-center gap-4 mt-10 flex-wrap">
-                    <button className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 text-xs uppercase tracking-widest font-semibold transition-all hover:shadow-xl">
-                        Become a Member
-                    </button>
-                    <button className={`border px-8 py-3 text-xs uppercase tracking-widest font-semibold transition-all ${isDark 
-                        ? 'border-white/30 text-white hover:bg-white hover:text-gray-900' 
-                        : 'border-gray-300 text-gray-700 hover:bg-red-600 hover:text-white hover:border-red-600'
-                    }`}>
-                        Explore Network
-                    </button>
-                </div>
-            </div>
-
-            <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                className="absolute bottom-10 right-10 w-16 h-16 bg-red-600 rounded-full flex items-center justify-center shadow-xl"
+        {/* Dynamic Headline - Smaller with typing effect */}
+        <div className="h-[80px] md:h-[100px] flex items-center justify-center text-center">
+          <h1 className="text-3xl md:text-5xl lg:text-6xl font-black uppercase tracking-tight leading-[0.95]">
+            <span className="text-white">{displayText}</span>
+            <motion.span
+              animate={{ opacity: [1, 0] }}
+              transition={{ duration: 0.5, repeat: Infinity, repeatType: "reverse" }}
+              className="text-red-500 ml-1"
             >
-                <Play className="text-white" />
-            </motion.button>
+              _
+            </motion.span>
+          </h1>
+        </div>
 
-            <div className={`absolute bottom-6 left-1/2 -translate-x-1/2 text-xs tracking-widest animate-bounce ${isDark ? 'text-red-300' : 'text-red-500'}`}>
-                SCROLL
-            </div>
-        </motion.section>
-    );
+        {/* Sub-text - Smaller */}
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+          className="mt-4 text-gray-400 text-sm md:text-base max-w-xl text-center font-light leading-relaxed"
+        >
+          Empowering businesses to scale and innovate through strategic partnerships
+          and policy advocacy since 1957.
+        </motion.p>
+
+        {/* CTAs - Smaller spacing */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className="flex flex-wrap items-center justify-center gap-4 mt-8"
+        >
+          <button className="group relative px-6 py-3 bg-red-600 text-white text-xs font-bold uppercase tracking-widest flex items-center gap-2 hover:bg-red-700 transition-all rounded-sm">
+            Become a Member
+            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+          </button>
+
+          <button className="flex items-center gap-2 px-6 py-3 border border-white/10 hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-widest rounded-sm">
+            <Play className="w-4 h-4 fill-white" />
+            Watch Showreel
+          </button>
+        </motion.div>
+
+        {/* Stats Section - Compact */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.7 }}
+          className="mt-10 w-full max-w-2xl py-4 border-t border-white/10"
+        >
+          <div className="grid grid-cols-3 gap-4">
+            {STATS.map((stat) => (
+              <div key={stat.label} className="text-center group">
+                <span className="block text-xl md:text-2xl font-bold text-white group-hover:text-red-500 transition-colors">
+                  {stat.value}
+                </span>
+                <span className="text-[8px] uppercase tracking-[0.2em] text-gray-500 font-bold">
+                  {stat.label}
+                </span>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+      </div>
+
+      {/* Modernized Scroll Indicator */}
+      <div className="absolute bottom-6 flex flex-col items-center gap-2 opacity-50">
+        <span className="text-[8px] uppercase tracking-[0.4em] text-gray-400">Scroll</span>
+        <motion.div
+          animate={{ y: [0, 6, 0] }}
+          transition={{ duration: 2, repeat: Infinity }}
+          className="w-[1px] h-8 bg-gradient-to-b from-red-600 to-transparent"
+        />
+      </div>
+    </section>
+  );
 };
 
 export default HeroSection;

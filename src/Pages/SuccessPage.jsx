@@ -74,7 +74,7 @@ const SuccessPage = () => {
   return (
     <div className={`min-h-screen flex items-center justify-center p-6 ${
       isDark 
-        ? 'bg-gray-900' 
+        ? 'bg-black' 
         : 'bg-gray-50'
     }`}>
       <motion.div

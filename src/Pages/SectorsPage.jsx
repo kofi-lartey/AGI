@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTheme } from '../context/ThemeContext';
 import {
     Factory, Sprout, Zap, Monitor, HardHat, Landmark,
     Palmtree, CheckCircle2, TrendingUp, Globe, FileText,
@@ -73,6 +74,7 @@ const sectorsData = {
 };
 
 const SectorsPage = () => {
+    const { isDark } = useTheme();
     const [activeSector, setActiveSector] = useState('Manufacturing');
     const [searchQuery, setSearchQuery] = useState('');
 
@@ -85,17 +87,19 @@ const SectorsPage = () => {
     );
 
     return (
-        <div className="bg-white text-black min-h-screen font-sans selection:bg-red-600 selection:text-white">
+        <div className={`min-h-screen font-sans selection:bg-red-600 selection:text-white ${
+            isDark ? 'bg-black text-white' : 'bg-white text-black'
+        }`}>
 
             {/* Search & Header Section */}
-            <section className="relative h-[45vh] flex items-center bg-[#0a0a0a] overflow-hidden">
-                <div className="absolute inset-0 opacity-40">
+            <section className={`relative h-[45vh] flex items-center overflow-hidden ${isDark ? 'bg-[#0a0a0a]' : 'bg-[#0a0a0a]'}`}>
+                {/* <div className="absolute inset-0 opacity-40">
                     <img src="https://images.unsplash.com/photo-1541888941259-7b9d9ef990ed?auto=format&fit=crop&q=80" className="w-full h-full object-cover" alt="Industrial" />
-                </div>
+                </div> */}
                 <div className="relative z-10 max-w-7xl mx-auto px-6 w-full flex flex-col md:flex-row justify-between items-end gap-8">
                     <div className="max-w-xl">
-                        <span className="text-red-600 font-bold uppercase tracking-widest text-xs mb-4 block">Industry Innovation</span>
-                        <h1 className="text-6xl font-black text-white leading-tight">Our Industrial <br /><span className="text-red-600">Sectors</span></h1>
+                        <span className={`font-bold uppercase tracking-widest text-xs   block ${isDark ? 'text-red-500' : 'text-red-600'}`}>Industry Innovation</span>
+                        <h1 className={`text-6xl font-black leading-tight ${isDark ? 'text-white' : 'text-white'}`}>Our Industrial <br /><span className={isDark ? 'text-red-500' : 'text-red-600'}>Sectors</span></h1>
                     </div>
 
                     {/* Smart Search Bar */}
@@ -104,7 +108,11 @@ const SectorsPage = () => {
                         <input
                             type="text"
                             placeholder="Search sectors..."
-                            className="w-full bg-white/10 border border-white/20 backdrop-blur-md rounded-full py-3 pl-12 pr-4 text-white focus:bg-white focus:text-black transition-all outline-none"
+                            className={`w-full border backdrop-blur-md rounded-full py-3 pl-12 pr-4 transition-all outline-none ${
+                                isDark 
+                                    ? 'bg-white/10 border-white/20 text-white focus:bg-white focus:text-black' 
+                                    : 'bg-white/10 border-white/20 text-white focus:bg-white focus:text-black'
+                            }`}
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
                     </div>
@@ -112,18 +120,22 @@ const SectorsPage = () => {
             </section>
 
             {/* Dynamic Tab Navigation */}
-            <nav className="sticky top-14 md:top-16 z-30 bg-white border-b border-gray-100 shadow-sm">
+            <nav className={`sticky top-14 md:top-16 z-30 shadow-sm ${
+                isDark ? 'bg-black border-b border-gray-800' : 'bg-white border-b border-gray-100'
+            }`}>
                 <div className="max-w-7xl mx-auto px-6 py-1 flex gap-8 overflow-x-auto no-scrollbar">
                     {filteredSectorKeys.map((key) => (
                         <button
                             key={key}
                             onClick={() => setActiveSector(key)}
-                            className={`py-5 text-sm font-bold transition-all whitespace-nowrap relative ${activeSector === key ? 'text-red-600' : 'text-gray-400 hover:text-black'
+                            className={`py-5 text-sm font-bold transition-all whitespace-nowrap relative ${activeSector === key 
+                                ? isDark ? 'text-red-500' : 'text-red-600' 
+                                : isDark ? 'text-gray-400 hover:text-white' : 'text-gray-400 hover:text-black'
                                 }`}
                         >
                             {key}
                             {activeSector === key && (
-                                <motion.div layoutId="tabLine" className="absolute bottom-0 left-0 right-0 h-1 bg-red-600" />
+                                <motion.div layoutId="tabLine" className={`absolute bottom-0 left-0 right-0 h-1 ${isDark ? 'bg-red-500' : 'bg-red-600'}`} />
                             )}
                         </button>
                     ))}
@@ -153,23 +165,29 @@ const SectorsPage = () => {
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                                     <div className="space-y-6">
-                                        <h3 className="text-3xl font-bold">{data.subtitle}</h3>
-                                        <p className="text-gray-600 leading-relaxed text-lg">{data.description}</p>
+                                        <h3 className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>{data.subtitle}</h3>
+                                        <p className={`leading-relaxed text-lg ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>{data.description}</p>
                                         <div className="flex gap-4">
-                                            <button className="bg-red-600 text-white px-8 py-4 rounded-xl font-bold hover:bg-black transition-all flex items-center gap-2 group">
+                                            <button className={`px-8 py-4 rounded-xl font-bold transition-all flex items-center gap-2 group ${
+                                                isDark 
+                                                    ? 'bg-red-600 text-white hover:bg-red-700' 
+                                                    : 'bg-red-600 text-white hover:bg-black'
+                                            }`}>
                                                 Join This Sector <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                                             </button>
                                         </div>
                                     </div>
 
-                                    <div className="bg-zinc-50 p-8 rounded-3xl border border-zinc-100">
-                                        <h4 className="font-bold mb-6 flex items-center gap-2 uppercase tracking-tighter">
-                                            <CheckCircle2 className="text-red-600" size={20} /> Member Benefits
+                                    <div className={`p-8 rounded-3xl border ${
+                                        isDark ? 'bg-zinc-900 border-zinc-800' : 'bg-zinc-50 border-zinc-100'
+                                    }`}>
+                                        <h4 className={`font-bold mb-6 flex items-center gap-2 uppercase tracking-tighter ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                                            <CheckCircle2 className={isDark ? 'text-red-500' : 'text-red-600'} size={20} /> Member Benefits
                                         </h4>
                                         <ul className="space-y-4">
                                             {data.benefits.map((b, i) => (
-                                                <li key={i} className="flex gap-3 text-gray-600 font-medium">
-                                                    <span className="w-1.5 h-1.5 bg-red-600 rounded-full mt-2 shrink-0" />
+                                                <li key={i} className={`flex gap-3 font-medium ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                                                    <span className={`w-1.5 h-1.5 rounded-full mt-2 shrink-0 ${isDark ? 'bg-red-500' : 'bg-red-600'}`} />
                                                     {b}
                                                 </li>
                                             ))}
@@ -182,24 +200,28 @@ const SectorsPage = () => {
 
                     <div className="lg:col-span-4">
                         <div className="sticky top-28 space-y-6">
-                            <div className="bg-black text-white p-10 rounded-[2rem] shadow-xl">
-                                <h3 className="text-xl font-bold mb-10 flex items-center gap-2">
-                                    <span className="w-2 h-8 bg-red-600 rounded-full" /> Sector Statistics
+                            <div className={`p-10 rounded-[2rem] shadow-xl ${isDark ? 'bg-white text-black' : 'bg-black text-white'}`}>
+                                <h3 className={`text-xl font-bold mb-10 flex items-center gap-2 ${isDark ? 'text-black' : 'text-white'}`}>
+                                    <span className={`w-2 h-8 rounded-full ${isDark ? 'bg-red-500' : 'bg-red-600'}`} /> Sector Statistics
                                 </h3>
                                 <div className="space-y-10">
-                                    <Stat label="Total Members" val={data.stats.members} />
-                                    <Stat label="Contribution to GDP" val={data.stats.gdp} />
-                                    <Stat label="Export Growth" val={data.stats.growth} isRed />
-                                    <Stat label="Active Sub-Sectors" val={data.stats.active} />
+                                    <Stat label="Total Members" val={data.stats.members} isDark={isDark} />
+                                    <Stat label="Contribution to GDP" val={data.stats.gdp} isDark={isDark} />
+                                    <Stat label="Export Growth" val={data.stats.growth} isRed isDark={isDark} />
+                                    <Stat label="Active Sub-Sectors" val={data.stats.active} isDark={isDark} />
                                 </div>
                             </div>
 
-                            <button className="w-full border-2 border-zinc-100 p-6 rounded-[2rem] flex items-center justify-between group hover:border-red-600 transition-colors">
+                            <button className={`w-full border-2 p-6 rounded-[2rem] flex items-center justify-between group transition-colors ${
+                                isDark 
+                                    ? 'border-gray-800 hover:border-red-500' 
+                                    : 'border-zinc-100 hover:border-red-600'
+                            }`}>
                                 <div className="flex items-center gap-4">
-                                    <div className="bg-zinc-100 p-3 rounded-xl group-hover:bg-red-50 text-zinc-500 group-hover:text-red-600"><FileText /></div>
-                                    <span className="font-bold">Sector Report 2026</span>
+                                    <div className={`p-3 rounded-xl transition-colors ${isDark ? 'bg-gray-800 text-gray-400 group-hover:bg-red-900 group-hover:text-red-500' : 'bg-zinc-100 text-zinc-500 group-hover:bg-red-50 group-hover:text-red-600'}`}><FileText /></div>
+                                    <span className={`font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>Sector Report 2026</span>
                                 </div>
-                                <ArrowRight className="text-zinc-300 group-hover:text-red-600" />
+                                <ArrowRight className={`transition-colors ${isDark ? 'text-gray-600 group-hover:text-red-500' : 'text-zinc-300 group-hover:text-red-600'}`} />
                             </button>
                         </div>
                     </div>
@@ -207,12 +229,12 @@ const SectorsPage = () => {
             </section>
 
             {/* Grid of Other Sectors */}
-            <section className="py-24 bg-zinc-50 px-6">
+            <section className={`py-24 px-6 ${isDark ? 'bg-zinc-900' : 'bg-zinc-50'}`}>
                 <div className="max-w-7xl mx-auto">
                     <div className="flex justify-between items-end mb-12">
                         <div>
-                            <h2 className="text-3xl font-bold">Other Strategic Sectors</h2>
-                            <p className="text-gray-500 mt-2">Discover more industries we represent</p>
+                            <h2 className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>Other Strategic Sectors</h2>
+                            <p className={`mt-2 ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>Discover more industries we represent</p>
                         </div>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -220,11 +242,15 @@ const SectorsPage = () => {
                             <div
                                 key={key}
                                 onClick={() => { setActiveSector(key); window.scrollTo({ top: 450, behavior: 'smooth' }); }}
-                                className="bg-white p-8 rounded-2xl border border-transparent hover:border-red-600 transition-all cursor-pointer group shadow-sm hover:shadow-xl"
+                                className={`p-8 rounded-2xl border transition-all cursor-pointer group shadow-sm hover:shadow-xl ${
+                                    isDark 
+                                        ? 'bg-black border-transparent hover:border-red-500' 
+                                        : 'bg-white border-transparent hover:border-red-600'
+                                }`}
                             >
-                                <div className="text-red-600 mb-6 group-hover:scale-110 transition-transform">{sectorsData[key].icon}</div>
-                                <h4 className="font-bold text-lg mb-2">{key}</h4>
-                                <p className="text-gray-500 text-sm line-clamp-2">{sectorsData[key].description}</p>
+                                <div className={`mb-6 group-hover:scale-110 transition-transform ${isDark ? 'text-red-500' : 'text-red-600'}`}>{sectorsData[key].icon}</div>
+                                <h4 className={`font-bold text-lg mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>{key}</h4>
+                                <p className={`text-sm line-clamp-2 ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>{sectorsData[key].description}</p>
                             </div>
                         ))}
                     </div>
@@ -234,10 +260,10 @@ const SectorsPage = () => {
     );
 };
 
-const Stat = ({ label, val, isRed }) => (
-    <div className="flex justify-between items-center border-b border-white/10 pb-4">
-        <span className="text-zinc-500 text-sm font-bold uppercase tracking-widest">{label}</span>
-        <span className={`text-2xl font-black ${isRed ? 'text-red-500' : 'text-white'}`}>{val}</span>
+const Stat = ({ label, val, isRed, isDark }) => (
+    <div className={`flex justify-between items-center border-b pb-4 ${isDark ? 'border-white/10' : 'border-white/10'}`}>
+        <span className={`text-sm font-bold uppercase tracking-widest ${isDark ? 'text-zinc-500' : 'text-zinc-500'}`}>{label}</span>
+        <span className={`text-2xl font-black ${isRed ? (isDark ? 'text-red-500' : 'text-red-600') : (isDark ? 'text-white' : 'text-white')}`}>{val}</span>
     </div>
 );
 

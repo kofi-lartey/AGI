@@ -5,12 +5,12 @@
  * It supports multiple email providers including SMTP, SendGrid, Mailgun, and AWS SES.
  * 
  * Environment Variables (configure in Netlify dashboard):
- * - EMAIL_HOST: SMTP server hostname
+ * - EMAIL_HOST: SMTP server hostname (e.g., 'smtp.example.com')
  * - EMAIL_PORT: SMTP port (587 for TLS, 465 for SSL)
  * - EMAIL_USER: SMTP username
  * - EMAIL_PASS: SMTP password
- * - EMAIL_FROM: From email address (e.g., "AGI <noreply@agighana.org>")
- * - EMAIL_FROM_NAME: Display name for sender
+ * - EMAIL_FROM: From email address (e.g., 'noreply@yourdomain.org')
+ * - EMAIL_FROM_NAME: Display name for sender (e.g., 'Your Organization')
  * 
  * Optional Provider Settings:
  * - EMAIL_PROVIDER: 'smtp' | 'sendgrid' | 'mailgun' | 'ses' (default: 'smtp')
@@ -25,14 +25,16 @@
 const nodemailer = require('nodemailer');
 
 // Email configuration from environment
+// TODO: Replace these defaults with your actual email configuration
+// Missing required config will cause emails to be logged instead of sent
 const config = {
-  host: process.env.EMAIL_HOST || '',
+  host: process.env.EMAIL_HOST || '', // TODO: Set EMAIL_HOST env var
   port: parseInt(process.env.EMAIL_PORT || '587'),
   secure: parseInt(process.env.EMAIL_PORT || '587') === 465,
-  user: process.env.EMAIL_USER || '',
-  pass: process.env.EMAIL_PASS || '',
-  from: process.env.EMAIL_FROM || process.env.DEFAULT_EMAIL_FROM || 'noreply@agighana.org',
-  fromName: process.env.EMAIL_FROM_NAME || 'AGI ACCRA',
+  user: process.env.EMAIL_USER || '', // TODO: Set EMAIL_USER env var
+  pass: process.env.EMAIL_PASS || '', // TODO: Set EMAIL_PASS env var
+  from: process.env.EMAIL_FROM || 'noreply@yourdomain.org', // TODO: Set EMAIL_FROM env var
+  fromName: process.env.EMAIL_FROM_NAME || 'Your Organization', // TODO: Set EMAIL_FROM_NAME env var
   provider: process.env.EMAIL_PROVIDER || 'smtp'
 };
 

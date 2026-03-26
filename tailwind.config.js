@@ -8,59 +8,68 @@ export default {
   theme: {
     extend: {
       colors: {
-        coffee: {
-          // Primary espresso tones
-          50: '#f5f0eb',
-          100: '#e8ddd3',
-          200: '#d4c4b5',
-          300: '#bfa992',
-          400: '#a8886d',
-          500: '#8f6b4e', // Medium espresso
-          600: '#6f5240',
-          700: '#524032',
-          800: '#3d2e24',
-          900: '#2d211a', // Deep espresso
-          950: '#1a1310',
+        // Black spectrum for depth and dimension
+        black: {
+          50: '#f0f0f0',
+          100: '#e0e0e0',
+          200: '#d0d0d0',
+          300: '#c0c0c0',
+          400: '#b0b0b0',
+          500: '#a0a0a0',
+          600: '#909090',
+          700: '#808080',
+          800: '#707070',
+          900: '#606060',
+          950: '#505050',
         },
-        cream: {
-          50: '#fefcf9',
-          100: '#fdf7ef',
-          200: '#faecd8',
-          300: '#f5ddbd',
-          400: '#edc99a',
-          500: '#e3b273', // Latte
-          600: '#d99a56',
-          700: '#c47d3f',
-          800: '#a26333',
-          900: '#824d2c',
+        // Red spectrum for accent and interaction states
+        red: {
+          50: '#fef2f2',
+          100: '#fee2e2',
+          200: '#fecaca',
+          300: '#fca5a5',
+          400: '#f87171',
+          500: '#ef4444',
+          600: '#dc2626',
+          700: '#b91c1c',
+          800: '#991b1b',
+          900: '#7f1d1d',
+          950: '#450a0a',
         },
-        espresso: {
-          DEFAULT: '#2d211a',
-          dark: '#1a1310',
-          light: '#3d2e24',
+        // White spectrum for subtle backgrounds
+        white: {
+          50: '#fafafa',
+          100: '#f5f5f5',
+          200: '#e5e5e5',
+          300: '#d4d4d4',
+          400: '#a3a3a3',
+          500: '#737373',
+          600: '#525252',
+          700: '#404040',
+          800: '#262626',
+          900: '#171717',
+          950: '#0a0a0a',
         },
-        charcoal: {
-          DEFAULT: '#2a2a2a',
-          light: '#3a3a3a',
-          dark: '#1a1a1a',
-        },
-        // Coffee cherry red / burnt sienna accent
-        cherry: {
-          50: '#fdf2f0',
-          100: '#fbe0db',
-          200: '#f6c4b8',
-          300: '#ef9e8a',
-          400: '#e67059',
-          500: '#d94a34', // Coffee cherry red
-          600: '#c43a26',
-          700: '#a32e20',
-          800: '#85271d',
-          900: '#6d231b',
-        },
-        sienna: {
-          DEFAULT: '#a0522d',
-          light: '#b86b3d',
-          dark: '#8b4513',
+        // Brand colors with spectrum principles
+        brand: {
+          // Black spectrum - main background uses darkest, cards use lighter shades
+          'black-main': '#000000',           // Main background
+          'black-card': '#1a1a1a',            // Card backgrounds
+          'black-panel': '#2d2d2d',           // Panel backgrounds
+          'black-hover': '#262626',           // Hover states
+          'black-active': '#1f1f1f',          // Active states
+          
+          // Red spectrum - accent with proper interaction states
+          'red-primary': '#dc2626',           // Primary accent
+          'red-hover': '#ef4444',             // Hover glow
+          'red-active': '#b91c1c',            // Pressed/active
+          'red-light': '#fef2f2',             // Light accents
+          
+          // White spectrum - subtle backgrounds, not pure white dominance
+          'white-soft': '#fafafa',           // Soft backgrounds
+          'white-muted': '#f5f5f5',          // Muted backgrounds
+          'white-text': '#ffffff',           // Text and key highlights
+          'white-off': '#f0f0f0',            // Off-white
         },
       },
       fontFamily: {

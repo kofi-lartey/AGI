@@ -3,7 +3,14 @@
  * 
  * HTML email templates for different notification types.
  * All templates are responsive and work with major email clients.
+ * 
+ * TODO: Update BASE_URL to your actual domain
+ * TODO: Update organization name and address below
  */
+
+const BASE_URL = process.env.CLIENT_URL || 'https://yourdomain.org'; // TODO: Set CLIENT_URL env var
+const ORGANIZATION_NAME = 'Your Organization'; // TODO: Update organization name
+const ORGANIZATION_ADDRESS = '123 Organization Street, City, Country'; // TODO: Update address
 
 const baseTemplate = (content) => `
 <!DOCTYPE html>
@@ -11,7 +18,7 @@ const baseTemplate = (content) => `
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AGI ACCRA</title>
+  <title>${ORGANIZATION_NAME}</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; background-color: #f5f5f5; }
@@ -36,13 +43,13 @@ const baseTemplate = (content) => `
 <body>
   <div class="container">
     <div class="header">
-      <h1>AGI ACCRA</h1>
-      <p>Association of Ghana Industries</p>
+      <h1>${ORGANIZATION_NAME}</h1>
+      <p>Organization Tagline</p>
     </div>
     ${content}
     <div class="footer">
-      <p>© ${new Date().getFullYear()} Association of Ghana Industries. All rights reserved.</p>
-      <p>42 Dr. Isert Street, North Ridge, Accra, Ghana</p>
+      <p>© ${new Date().getFullYear()} ${ORGANIZATION_NAME}. All rights reserved.</p>
+      <p>${ORGANIZATION_ADDRESS}</p>
       <p>This is an automated message. Please do not reply directly to this email.</p>
     </div>
   </div>
@@ -60,7 +67,7 @@ exports.uploadConfirmation = (data) => {
     <div class="content">
       <h2 style="margin: 0 0 20px; font-size: 20px; color: #111827;">Upload Confirmation</h2>
       <p>Dear ${userName || 'User'},</p>
-      <p>Your file has been successfully uploaded to the AGI Media Hub.</p>
+      <p>Your file has been successfully uploaded to our platform.</p>
       
       <div class="alert alert-success">
         <strong>✓ Upload Successful</strong>
@@ -87,14 +94,14 @@ exports.uploadConfirmation = (data) => {
       
       ${mediaUrl ? `<p><a href="${mediaUrl}" class="button">View Media</a></p>` : ''}
       
-      <p style="margin-top: 20px;">You can manage your uploaded media from the <a href="https://agighana.org/admin">Admin Dashboard</a>.</p>
+      <p style="margin-top: 20px;">You can manage your uploads from the <a href="${BASE_URL}/admin">Admin Dashboard</a>.</p>
     </div>
   `;
   
   return {
     subject: `Upload Successful: ${filename}`,
     html: baseTemplate(content),
-    text: `Upload Successful: Your file "${filename}" has been uploaded to the AGI Media Hub.`
+    text: `Upload Successful: Your file "${filename}" has been uploaded.`
   };
 };
 
@@ -106,9 +113,9 @@ exports.userRegistration = (data) => {
   
   const content = `
     <div class="content">
-      <h2 style="margin: 0 0 20px; font-size: 20px; color: #111827;">Welcome to AGI ACCRA</h2>
+      <h2 style="margin: 0 0 20px; font-size: 20px; color: #111827;">Welcome to ${ORGANIZATION_NAME}</h2>
       <p>Dear ${userName},</p>
-      <p>Welcome to the Association of Ghana Industries admin platform. Your account has been created successfully.</p>
+      <p>Welcome to our platform. Your account has been created successfully.</p>
       
       <div class="alert alert-info">
         <strong>Account Details:</strong>
@@ -122,16 +129,16 @@ exports.userRegistration = (data) => {
         ${tempPassword ? `<tr><th>Temporary Password</th><td>${tempPassword}</td></tr>` : ''}
       </table>
       
-      <p style="margin-top: 20px;"><a href="https://agighana.org/admin" class="button">Access Admin Dashboard</a></p>
+      <p style="margin-top: 20px;"><a href="${BASE_URL}/admin" class="button">Access Admin Dashboard</a></p>
       
       <p style="margin-top: 20px; color: #dc2626;"><strong>Important:</strong> Please change your password after your first login.</p>
     </div>
   `;
   
   return {
-    subject: 'Welcome to AGI ACCRA Admin',
+    subject: `Welcome to ${ORGANIZATION_NAME}`,
     html: baseTemplate(content),
-    text: `Welcome to AGI ACCRA! Your account has been created. Please log in at https://agighana.org/admin`
+    text: `Welcome! Your account has been created. Please log in at ${BASE_URL}/admin`
   };
 };
 
@@ -148,7 +155,7 @@ exports.passwordReset = (data) => {
       <p>We received a request to reset your password. Click the button below to create a new password:</p>
       
       <p style="text-align: center; margin: 30px 0;">
-        <a href="https://agighana.org/admin/reset-password?token=${resetToken}" class="button">Reset Password</a>
+        <a href="${BASE_URL}/admin/reset-password?token=${resetToken}" class="button">Reset Password</a>
       </p>
       
       <div class="alert alert-info">
@@ -160,9 +167,9 @@ exports.passwordReset = (data) => {
   `;
   
   return {
-    subject: 'Reset Your AGI ACCRA Password',
+    subject: `Reset Your ${ORGANIZATION_NAME} Password`,
     html: baseTemplate(content),
-    text: `Reset your AGI password: https://agighana.org/admin/reset-password?token=${resetToken}`
+    text: `Reset your password: ${BASE_URL}/admin/reset-password?token=${resetToken}`
   };
 };
 
@@ -176,7 +183,7 @@ exports.mediaDeletionAlert = (data) => {
     <div class="content">
       <h2 style="margin: 0 0 20px; font-size: 20px; color: #111827;">Media Deletion Alert</h2>
       <p>Dear Administrator,</p>
-      <p>A media file has been deleted from the AGI Media Hub.</p>
+      <p>A media file has been deleted from the platform.</p>
       
       <div class="alert alert-error">
         <strong>⚠ File Deleted</strong>
@@ -217,7 +224,7 @@ exports.applicationReceived = (data) => {
     <div class="content">
       <h2 style="margin: 0 0 20px; font-size: 20px; color: #111827;">Application Received</h2>
       <p>Dear ${applicantName},</p>
-      <p>Thank you for your interest in the Association of Ghana Industries. We have received your ${applicationType || 'membership'} application.</p>
+      <p>Thank you for your interest in ${ORGANIZATION_NAME}. We have received your ${applicationType || 'membership'} application.</p>
       
       <div class="alert alert-success">
         <strong>Application Received</strong> - Reference: ${serialNumber}
@@ -243,7 +250,7 @@ exports.applicationReceived = (data) => {
       </table>
       
       <p style="margin-top: 20px;">Our team will review your application and get back to you within 5-7 business days.</p>
-      <p>You can track your application status using your reference number at <a href="https://agighana.org/apply">https://agighana.org/apply</a>.</p>
+      <p>You can track your application status using your reference number at <a href="${BASE_URL}/apply">${BASE_URL}/apply</a>.</p>
     </div>
   `;
   
@@ -297,12 +304,12 @@ exports.applicationStatusUpdate = (data) => {
       
       ${status === 'approved' ? `
         <p style="margin-top: 20px;">Congratulations! Your application has been approved. Please log in to your member dashboard to complete the registration process.</p>
-        <p><a href="https://agighana.org/membership" class="button">Access Member Dashboard</a></p>
+        <p><a href="${BASE_URL}/membership" class="button">Access Member Dashboard</a></p>
       ` : ''}
       
       ${status === 'rejected' ? `
         <p style="margin-top: 20px;">We regret to inform you that your application was not approved at this time. Please contact us for more information.</p>
-        <p><a href="https://agighana.org/contact" class="button">Contact Support</a></p>
+        <p><a href="${BASE_URL}/contact" class="button">Contact Support</a></p>
       ` : ''}
     </div>
   `;
@@ -347,14 +354,14 @@ exports.adminAlert = (data) => {
         </table>
       ` : ''}
       
-      <p style="margin-top: 20px;"><a href="https://agighana.org/admin" class="button">View Admin Dashboard</a></p>
+      <p style="margin-top: 20px;"><a href="${BASE_URL}/admin" class="button">View Admin Dashboard</a></p>
     </div>
   `;
   
   return {
-    subject: `[AGI Admin] ${alertInfo.title}`,
+    subject: `[${ORGANIZATION_NAME}] ${alertInfo.title}`,
     html: baseTemplate(content),
-    text: `[AGI Admin] ${title}: ${message}`
+    text: `[${ORGANIZATION_NAME}] ${title}: ${message}`
   };
 };
 

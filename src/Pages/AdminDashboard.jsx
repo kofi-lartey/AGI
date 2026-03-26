@@ -1467,7 +1467,7 @@ const AdminDashboard = () => {
   );
 
   return (
-    <div className={`min-h-screen ${isDark ? 'bg-gray-900' : 'bg-gray-50'}`}>
+    <div className={`min-h-screen ${isDark ? 'bg-black' : 'bg-gray-50'}`}>
       {/* Toast Notification */}
       <AnimatePresence>
         {toast && (

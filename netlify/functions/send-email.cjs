@@ -12,6 +12,10 @@
  *   "to": "email@example.com",
  *   "data": { ... }
  * }
+ * 
+ * TODO: Configure environment variables in Netlify dashboard:
+ * - CLIENT_URL: Your website URL (e.g., https://yourdomain.org)
+ * - EMAIL_* variables (see email-service.cjs)
  */
 
 const { sendEmail, isEmailConfigured } = require('./email-service');
@@ -132,7 +136,7 @@ const handleEmailRequest = async (type, data) => {
     default:
       // Custom email
       template = {
-        subject: data.subject || 'AGI ACCRA Notification',
+        subject: data.subject || 'Notification',
         html: data.html,
         text: data.text
       };

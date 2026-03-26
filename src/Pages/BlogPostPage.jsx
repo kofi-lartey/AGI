@@ -31,7 +31,7 @@ const BlogPostPage = () => {
     if (!post) {
         return (
             <div className={`min-h-screen flex items-center justify-center ${
-                isDark ? 'bg-gray-900' : 'bg-white'
+                isDark ? 'bg-black' : 'bg-white'
             }`}>
                 <div className="text-center">
                     <h2 className={`text-2xl font-black mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>
@@ -54,7 +54,7 @@ const BlogPostPage = () => {
 
     return (
         <div className={`min-h-screen font-sans pb-20 pt-14 md:pt-20 overflow-x-hidden ${
-            isDark ? 'bg-gray-900 text-white' : 'bg-white text-black'
+            isDark ? 'bg-black text-white' : 'bg-white text-black'
         }`}>
             {/* Breadcrumbs with Back Button */}
             <nav className={`max-w-7xl mx-auto px-4 md:px-6 py-3 flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-4 ${
@@ -86,7 +86,7 @@ const BlogPostPage = () => {
 
             {/* Floating Social Icons - Fixed Position (Desktop only) */}
             <div className={`hidden xl:flex flex-col gap-3 fixed left-4 2xl:left-10 top-1/2 -translate-y-1/2 z-40 ${
-                isDark ? 'bg-gray-900/90' : 'bg-white/90'
+                isDark ? 'bg-black/90' : 'bg-white/90'
             } backdrop-blur-sm p-3 rounded-xl shadow-lg`}>
                 <button className={`p-3 rounded-full transition-all ${
                     isDark 
@@ -143,10 +143,10 @@ const BlogPostPage = () => {
                                 </div>
                                 <div>
                                     <span className={`font-bold text-sm block ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                                        {post.author}
+                                        {post.author || 'Editorial Team'}
                                     </span>
                                     <span className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
-                                        {post.authorRole}
+                                        {post.authorRole || 'Staff Writer'}
                                     </span>
                                 </div>
                             </div>
@@ -158,7 +158,7 @@ const BlogPostPage = () => {
                             <div className={`flex items-center gap-2 text-sm ${
                                 isDark ? 'text-gray-500' : 'text-gray-400'
                             }`}>
-                                <Clock size={16} /> {post.readTime}
+                                <Clock size={16} /> {post.readTime || '5 min read'}
                             </div>
                             <div className={`flex items-center gap-2 text-sm ${
                                 isDark ? 'text-gray-500' : 'text-gray-400'
@@ -168,57 +168,28 @@ const BlogPostPage = () => {
                         </div>
 
                         <img 
-                            src={post.image} 
+                            src={post.image || 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80'} 
                             className="w-full aspect-video object-cover rounded-xl md:rounded-3xl mb-8 md:mb-12 shadow-2xl" 
                             alt={post.title} 
                         />
 
+                        {/* Dynamic Content from Database */}
                         <div className={`prose prose-lg max-w-none leading-relaxed space-y-8 ${
                             isDark ? 'text-gray-300' : 'text-gray-600'
                         }`}>
-                            <p className={`text-xl font-medium leading-relaxed ${
-                                isDark ? 'text-gray-200' : 'text-gray-900'
-                            }`}>
-                                {post.content}
-                            </p>
-
-                            <h2 className={`text-xl md:text-3xl font-black pt-4 ${
-                                isDark ? 'text-white' : 'text-black'
-                            }`}>
-                                The Shift to Automation
-                            </h2>
-                            <p>For decades, Ghana's industrial landscape was defined by manual labor and semi-automated systems. However, 2024 marks a pivotal year where the integration of IoT is no longer a luxury, but a necessity.</p>
-
-                            <blockquote className={`border-l-4 rounded-r-2xl italic p-8 ${
-                                isDark 
-                                    ? 'border-red-600 bg-red-900/20 text-red-300' 
-                                    : 'border-red-600 bg-red-50 text-red-900'
-                            }`}>
-                                "Our goal isn't just to increase production; it's to transform the DNA of Ghanaian manufacturing to be smarter, greener, and globally competitive."
-                                <footer className={`mt-4 font-bold text-sm not-italic ${
-                                    isDark ? 'text-red-400' : 'text-red-700'
-                                }`}>— Dr. Humphrey Ayim-Darke, AGI President</footer>
-                            </blockquote>
-
-                            <h3 className={`text-lg md:text-2xl font-black pt-4 ${
-                                isDark ? 'text-white' : 'text-black'
-                            }`}>
-                                Key Innovation Drivers
-                            </h3>
-                            <ul className="space-y-4">
-                                {[
-                                    { t: "Precision Engineering", d: "Utilizing high-accuracy CNC machinery to reduce waste." },
-                                    { t: "Renewable Integration", d: "Transitioning factories to hybrid solar models." },
-                                    { t: "Digital Twin Technology", d: "Simulating manufacturing processes to predict failures." }
-                                ].map((item, i) => (
-                                    <li key={i} className="flex gap-4">
-                                        <CheckCircle2 className="text-red-600 shrink-0" size={24} />
-                                        <div>
-                                            <strong className={isDark ? 'text-white' : 'text-black'}>{item.t}:</strong> {item.d}
-                                        </div>
-                                    </li>
-                                ))}
-                            </ul>
+                            {post.content ? (
+                                <div className="text-xl font-medium leading-relaxed">
+                                    {post.content.split('\n\n').map((paragraph, idx) => (
+                                        <p key={idx} className={`mb-4 ${isDark ? 'text-gray-200' : 'text-gray-900'}`}>
+                                            {paragraph}
+                                        </p>
+                                    ))}
+                                </div>
+                            ) : (
+                                <p className={`text-xl font-medium leading-relaxed ${isDark ? 'text-gray-200' : 'text-gray-900'}`}>
+                                    No content available for this post. Please add content in the admin dashboard.
+                                </p>
+                            )}
                         </div>
 
                         {/* Share Section */}
@@ -259,13 +230,19 @@ const BlogPostPage = () => {
                             Latest Insights
                         </h4>
                         <div className="space-y-8">
-                            {relatedPosts.map((relatedPost) => (
-                                <SidebarPost 
-                                    key={relatedPost.id}
-                                    post={relatedPost}
-                                    isDark={isDark}
-                                />
-                            ))}
+                            {relatedPosts.length > 0 ? (
+                                relatedPosts.map((relatedPost) => (
+                                    <SidebarPost 
+                                        key={relatedPost.id}
+                                        post={relatedPost}
+                                        isDark={isDark}
+                                    />
+                                ))
+                            ) : (
+                                <p className={isDark ? 'text-gray-500' : 'text-gray-400'}>
+                                    No related posts available.
+                                </p>
+                            )}
                         </div>
 
                         <div className={`mt-12 p-8 rounded-2xl ${
@@ -296,7 +273,7 @@ const SidebarPost = ({ post, isDark }) => (
     <Link to={`/blog/${post.id}`} className="flex gap-4 group cursor-pointer">
         <div className="w-20 h-20 shrink-0 rounded-xl overflow-hidden">
             <img 
-                src={post.image} 
+                src={post.image || 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80'} 
                 className="w-full h-full object-cover group-hover:scale-110 transition-transform" 
                 alt={post.title}
             />
