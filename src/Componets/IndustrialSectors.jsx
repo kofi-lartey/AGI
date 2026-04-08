@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useLoading } from "../context/LoadingContext";
 import { useRef } from "react";
 
+// Key sectors to display on homepage - maps to sectorsData keys
 const sectors = [
   {
     title: "Agri-Business",
@@ -12,13 +13,15 @@ const sectors = [
       "Transforming agriculture through processing, innovation, and value chain expansion.",
     icon: <Leaf size={28} />,
     stats: "40% Growth",
+    sectorKey: "Agri-Business", // Maps to sectorsData key
   },
   {
-    title: "Energy",
+    title: "Energy & Oil",
     description:
       "Enabling sustainable power solutions for industrial and economic growth.",
     icon: <Zap size={28} />,
     stats: "500+ MW",
+    sectorKey: "Energy & Oil",
   },
   {
     title: "Manufacturing",
@@ -26,6 +29,7 @@ const sectors = [
       "Driving production, job creation, and industrial backbone development.",
     icon: <Factory size={28} />,
     stats: "12K Jobs",
+    sectorKey: "Manufacturing",
   },
   {
     title: "IT & Digital",
@@ -33,6 +37,7 @@ const sectors = [
       "Accelerating digital transformation and Industry 4.0 adoption.",
     icon: <Monitor size={28} />,
     stats: "100+ Firms",
+    sectorKey: "IT & Digital",
   },
 ];
 
@@ -46,6 +51,12 @@ const IndustrialSectors = () => {
   const handleNavigate = (path) => {
     startLoading('Navigating...');
     navigate(path);
+  };
+
+  // Navigate to individual sector page when clicked
+  const handleSectorClick = (sectorKey) => {
+    startLoading('Loading sector...');
+    navigate(`/sectors/${encodeURIComponent(sectorKey)}`);
   };
 
   return (
@@ -104,6 +115,7 @@ const IndustrialSectors = () => {
               whileHover={{ y: -8, scale: 1.02 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
               viewport={{ once: true }}
+              onClick={() => handleSectorClick(sector.sectorKey)}
               className={`relative p-8 group rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 ${
                 isDark 
                   ? 'bg-white/[0.02] border border-white/5 hover:border-red-500/50 hover:bg-white/[0.05]' 

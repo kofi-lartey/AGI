@@ -1,90 +1,60 @@
+/**
+ * SectorsPage Component
+ * 
+ * Displays all 24 industry sectors with their leaders.
+ * Each sector can be clicked to view detailed Single Sector page.
+ * 
+ * @route /sectors - Overview of all sectors
+ * @accessibility ARIA landmarks, keyboard navigation, proper headings
+ * 
+ * Data source: src/data/sectorsData.js
+ */
+
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '../context/ThemeContext';
+import { useNavigate } from 'react-router-dom';
+import { useLoading } from '../context/LoadingContext';
+import { sectorsData } from '../data/sectorsData';
 import {
-    Factory, Sprout, Zap, Monitor, HardHat, Landmark,
-    Palmtree, CheckCircle2, TrendingUp, Globe, FileText,
-    ArrowRight, Search, Info
+    CheckCircle2, Search, ArrowRight, FileText
 } from 'lucide-react';
 
-const sectorsData = {
-    Manufacturing: {
-        title: "The Manufacturing Engine",
-        subtitle: "Empowering Industrial Growth",
-        icon: <Factory size={48} />,
-        theme: "from-teal-600 to-emerald-800",
-        description: "The Manufacturing sector is a cornerstone of AGI. We represent a diverse range of industries from food processing to heavy industrial machinery, advocating for energy efficiency and competitive trade practices.",
-        stats: { members: "1,200+", gdp: "11.5%", growth: "+8.4%", active: "14" },
-        benefits: ["Quarterly industrial surveys", "Trade delegation invitations", "ISO certification support", "Regulatory advocacy"]
-    },
-    "Agri-Business": {
-        title: "Feeding the Nation",
-        subtitle: "Modernizing Agriculture",
-        icon: <Sprout size={48} />,
-        theme: "from-orange-500 to-red-700",
-        description: "Modernizing agriculture through processing and value addition. We support members in scaling from primary production to global export-ready industrial processing.",
-        stats: { members: "950+", gdp: "18.2%", growth: "+5.1%", active: "8" },
-        benefits: ["Market linkage programs", "Land tenure advocacy", "Value-chain optimization", "Export financing info"]
-    },
-    "Energy & Oil": {
-        title: "Powering Industry",
-        subtitle: "Sustainable Energy Solutions",
-        icon: <Zap size={48} />,
-        theme: "from-yellow-500 to-orange-600",
-        description: "Focused on ensuring stable and affordable power for industrial growth while leading the transition to sustainable and renewable energy sources for Ghanaian factories.",
-        stats: { members: "300+", gdp: "7.4%", growth: "+12.1%", active: "5" },
-        benefits: ["Utility pricing negotiation", "Renewable energy grants", "Technical policy workshops", "Efficiency auditing"]
-    },
-    "IT & Digital": {
-        title: "Digital Transformation",
-        subtitle: "The Tech Revolution",
-        icon: <Monitor size={48} />,
-        theme: "from-blue-600 to-indigo-800",
-        description: "Leading Ghana's digital industrial revolution. We support tech startups and established firms in software development, AI integration, and digital infrastructure.",
-        stats: { members: "450+", gdp: "4.8%", growth: "+15.6%", active: "10" },
-        benefits: ["Tech hub networking", "Software export support", "Cybersecurity frameworks", "Innovation grants access"]
-    },
-    "Construction": {
-        title: "Building the Future",
-        subtitle: "Sustainable Infrastructure",
-        icon: <HardHat size={48} />,
-        theme: "from-zinc-600 to-black",
-        description: "Representing the builders of Ghana. From residential developers to industrial infrastructure specialists, we advocate for local content and quality standards.",
-        stats: { members: "500+", gdp: "9.1%", growth: "+6.8%", active: "7" },
-        benefits: ["Local content advocacy", "Standardized procurement", "Safety certification training", "Project bidding alerts"]
-    },
-    "Financial Services": {
-        title: "Capital for Growth",
-        subtitle: "Fiscal Advisory & Support",
-        icon: <Landmark size={48} />,
-        theme: "from-red-800 to-black",
-        description: "Bridging the gap between industry and finance. We work with banks and fintechs to create tailored financial products for Ghanaian manufacturers.",
-        stats: { members: "150+", gdp: "5.2%", growth: "+4.2%", active: "4" },
-        benefits: ["SME loan facilitation", "Investment matchmaking", "Tax policy advocacy", "Financial literacy programs"]
-    },
-    "Hospitality": {
-        title: "Premium Service",
-        subtitle: "Tourism & Leisure Industry",
-        icon: <Palmtree size={48} />,
-        theme: "from-orange-400 to-orange-700",
-        description: "Promoting excellence in Ghana's service sector. We represent hotels, resorts, and tourism service providers in creating a world-class hospitality environment.",
-        stats: { members: "400+", gdp: "6.5%", growth: "+9.2%", active: "6" },
-        benefits: ["Tourism policy advocacy", "Service quality training", "International marketing", "Regulatory compliance support"]
-    }
-};
+// Create lookup for key to display name (Manufacturing stays as is, others formatted)
+const getSectorKey = (name) => name;
 
+// SectorsPage Component
 const SectorsPage = () => {
     const { isDark } = useTheme();
+    const navigate = useNavigate();
+    const { startLoading } = useLoading();
+    
+    // Default to first sector (Manufacturing) when no selection
     const [activeSector, setActiveSector] = useState('Manufacturing');
     const [searchQuery, setSearchQuery] = useState('');
 
+    // Get active sector data
     const data = sectorsData[activeSector];
 
+    // Filter sectors based on search
     const filteredSectorKeys = useMemo(() =>
         Object.keys(sectorsData).filter(key =>
             key.toLowerCase().includes(searchQuery.toLowerCase())
         ), [searchQuery]
     );
+
+    // Navigate to individual sector page
+    const handleSectorClick = (sectorKey) => {
+        startLoading('Loading sector...');
+        // Navigate to the single sector page
+        navigate(`/sectors/${encodeURIComponent(sectorKey)}`);
+    };
+
+    // Handle clicking on sector from the grid to make it active
+    const handleSectorSelect = (key) => {
+        setActiveSector(key);
+        window.scrollTo({ top: 450, behavior: 'smooth' });
+    };
 
     return (
         <div className={`min-h-screen font-sans selection:bg-red-600 selection:text-white ${
@@ -228,30 +198,73 @@ const SectorsPage = () => {
                 </div>
             </section>
 
-            {/* Grid of Other Sectors */}
+            {/* Grid of Other Sectors - Now shows ALL 24 sectors with leaders */}
             <section className={`py-24 px-6 ${isDark ? 'bg-zinc-900' : 'bg-zinc-50'}`}>
                 <div className="max-w-7xl mx-auto">
                     <div className="flex justify-between items-end mb-12">
                         <div>
-                            <h2 className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>Other Strategic Sectors</h2>
-                            <p className={`mt-2 ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>Discover more industries we represent</p>
+                            <h2 className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>All Industry Sectors</h2>
+                            <p className={`mt-2 ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>Click any sector to view details and leader information</p>
                         </div>
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                         {Object.keys(sectorsData).map(key => (
-                            <div
+                            <motion.div
                                 key={key}
-                                onClick={() => { setActiveSector(key); window.scrollTo({ top: 450, behavior: 'smooth' }); }}
-                                className={`p-8 rounded-2xl border transition-all cursor-pointer group shadow-sm hover:shadow-xl ${
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                whileHover={{ scale: 1.02, y: -4 }}
+                                onClick={() => handleSectorClick(key)}
+                                className={`p-6 rounded-2xl border transition-all cursor-pointer group shadow-sm hover:shadow-xl ${
                                     isDark 
                                         ? 'bg-black border-transparent hover:border-red-500' 
                                         : 'bg-white border-transparent hover:border-red-600'
                                 }`}
                             >
-                                <div className={`mb-6 group-hover:scale-110 transition-transform ${isDark ? 'text-red-500' : 'text-red-600'}`}>{sectorsData[key].icon}</div>
-                                <h4 className={`font-bold text-lg mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>{key}</h4>
-                                <p className={`text-sm line-clamp-2 ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>{sectorsData[key].description}</p>
-                            </div>
+                                {/* Sector Icon */}
+                                <div className={`mb-4 group-hover:scale-110 transition-transform ${isDark ? 'text-red-500' : 'text-red-600'}`}>
+                                    {sectorsData[key].icon}
+                                </div>
+                                
+                                {/* Sector Name */}
+                                <h4 className={`font-bold text-lg mb-3 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                                    {key}
+                                </h4>
+                                
+                                {/* Leader Info - Show leader name and photo */}
+                                <div className="flex items-center gap-3 mb-3">
+                                    <img 
+                                        src={sectorsData[key].leader.image} 
+                                        alt={sectorsData[key].leader.name}
+                                        className="w-10 h-10 rounded-full object-cover border-2 border-transparent group-hover:border-red-500"
+                                        onError={(e) => {
+                                            e.target.src = "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face";
+                                        }}
+                                    />
+                                    <div>
+                                        <p className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                                            {sectorsData[key].leader.name}
+                                        </p>
+                                        <p className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
+                                            {sectorsData[key].leader.role}
+                                        </p>
+                                    </div>
+                                </div>
+                                
+                                {/* Brief description */}
+                                <p className={`text-sm line-clamp-2 ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
+                                    {sectorsData[key].description}
+                                </p>
+                                
+                                {/* View Details indicator */}
+                                <div className={`mt-4 flex items-center gap-1 text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity ${
+                                    isDark ? 'text-red-500' : 'text-red-600'
+                                }`}>
+                                    <span>Click to view</span>
+                                    <ArrowRight size={14} />
+                                </div>
+                            </motion.div>
                         ))}
                     </div>
                 </div>

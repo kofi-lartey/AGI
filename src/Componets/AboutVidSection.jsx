@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { motion, useScroll, useTransform, useInView } from "framer-motion";
-import { Play, ArrowRight, Sparkles } from "lucide-react";
+import { Play, ArrowRight } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
 import { useLoading } from "../context/LoadingContext";
 import { useNavigate } from "react-router-dom";
@@ -56,15 +56,14 @@ const AboutVidSection = () => {
             "
           </span>
 
-          {/* Label with icon */}
+          {/* Label - Clean version without icon */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
             viewport={{ once: true }}
-            className="flex items-center gap-2 mb-4"
+            className="mb-4"
           >
-            <Sparkles className="w-4 h-4 text-red-500" />
             <span className={`text-xs tracking-[0.4em] uppercase font-medium ${isDark ? 'text-red-400' : 'text-red-600'}`}>
               Who We Are
             </span>
@@ -130,11 +129,12 @@ const AboutVidSection = () => {
             <motion.div
               whileHover={{ scale: 1.05 }}
               transition={{ duration: 0.6 }}
+              className="absolute inset-0 overflow-hidden"
             >
               <img
                 src="https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?auto=format&fit=crop&q=80"
-                alt="Industrial"
-                className="absolute inset-0 w-full h-full object-cover"
+                alt="Industrial growth in Ghana"
+                className="w-full h-full object-cover"
               />
             </motion.div>
 

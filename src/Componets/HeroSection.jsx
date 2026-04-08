@@ -15,7 +15,7 @@ const HEADLINES = [
 const STATS = [
   { value: "500+", label: "Members" },
   { value: "60+", label: "Years" },
-  { value: "12", label: "Sectors" },
+  { value: "12yrs", label: "Sectors" },
 ];
 
 const VIDEO_SRC = "https://www.pexels.com/download/video/19115722/";
@@ -61,7 +61,7 @@ const HeroSection = () => {
   return (
     <section
       ref={containerRef}
-      className="relative h-screen w-full bg-[#050505] overflow-hidden flex flex-col items-center justify-center text-white"
+      className="relative h-screen w-full bg-[#4e4242] overflow-hidden flex flex-col items-center justify-center text-white"
     >
       {/* Background Visuals */}
       <div className="absolute inset-0 z-0">
@@ -114,7 +114,7 @@ const HeroSection = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
-          className="mt-4 text-gray-400 text-sm md:text-base max-w-xl text-center font-light leading-relaxed"
+          className="mt-4 text-gray-300 text-sm md:text-base max-w-xl text-center font-light leading-relaxed"
         >
           Empowering businesses to scale and innovate through strategic partnerships
           and policy advocacy since 1957.
@@ -127,12 +127,12 @@ const HeroSection = () => {
           transition={{ delay: 0.5 }}
           className="flex flex-wrap items-center justify-center gap-4 mt-8"
         >
-          <button className="group relative px-6 py-3 bg-red-600 text-white text-xs font-bold uppercase tracking-widest flex items-center gap-2 hover:bg-red-700 transition-all rounded-sm">
+          <button className="group relative px-6 py-3 bg-red-600 text-white text-xs font-bold uppercase tracking-widest flex items-center gap-2 hover:bg-red-700 transition-all rounded-sm cursor-pointer">
             Become a Member
             <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
           </button>
 
-          <button className="flex items-center gap-2 px-6 py-3 border border-white/10 hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-widest rounded-sm">
+          <button className="flex items-center gap-2 text-gray-300px-6 px-2 py-3 border bg-black/10 border-white/10 hover:bg-black/20 transition-all text-xs font-bold uppercase tracking-widest rounded-sm cursor-pointer">
             <Play className="w-4 h-4 fill-white" />
             Watch Showreel
           </button>
@@ -145,13 +145,13 @@ const HeroSection = () => {
           transition={{ delay: 0.7 }}
           className="mt-10 w-full max-w-2xl py-4 border-t border-white/10"
         >
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-3 gap-4 cursor-pointer">
             {STATS.map((stat) => (
               <div key={stat.label} className="text-center group">
                 <span className="block text-xl md:text-2xl font-bold text-white group-hover:text-red-500 transition-colors">
                   {stat.value}
                 </span>
-                <span className="text-[8px] uppercase tracking-[0.2em] text-gray-500 font-bold">
+                <span className="text-[8px] uppercase tracking-[0.2em] text-gray-300 px-6 py-2 border border-white/10 bg-black/10 hover:hover:bg-black/20  transition-all font-bold">
                   {stat.label}
                 </span>
               </div>

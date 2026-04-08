@@ -19,6 +19,7 @@ import BlogPostPage from "./Pages/BlogPostPage";
 import ApplicationPage from "./Pages/ApplicationPage";
 import SuccessPage from "./Pages/SuccessPage";
 import AdminDashboard from "./Pages/AdminDashboard";
+import SingleSectorPage from "./Pages/SingleSectorPage";
 
 // Page transition animation
 const pageVariants = {
@@ -122,6 +123,11 @@ const RouteHandler = () => {
           <Route path="sectors" element={
             <AnimatedPage>
               <SectorsPage />
+            </AnimatedPage>
+          } />
+          <Route path="sectors/:sectorKey" element={
+            <AnimatedPage>
+              <SingleSectorPage />
             </AnimatedPage>
           } />
           <Route path="media" element={
