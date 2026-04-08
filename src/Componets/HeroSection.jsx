@@ -61,7 +61,7 @@ const HeroSection = () => {
   return (
     <section
       ref={containerRef}
-      className="relative h-screen w-full bg-[#4e4242] overflow-hidden flex flex-col items-center justify-center text-white"
+      className="relative h-screen w-full bg-[#2c2222] overflow-hidden flex flex-col items-center justify-center text-white"
     >
       {/* Background Visuals */}
       <div className="absolute inset-0 z-0">
