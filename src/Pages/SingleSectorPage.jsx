@@ -65,15 +65,18 @@ const SingleSectorPage = () => {
       
       {/* Hero Section with Sector Background */}
       <section className="relative h-[50vh] overflow-hidden">
-        {/* Background Image - Placeholder for sector-specific image */}
-        <div className={`absolute inset-0 bg-gradient-to-br ${sector.theme}`}>
-          <div className="absolute inset-0 bg-black/40" />
-          {/* Optional: Add actual sector background image here */}
-          {/* <img 
-            src={sector.backgroundImage} 
-            alt={`${decodedKey} background`}
-            className="w-full h-full object-cover"
-          /> */}
+        {/* Background Image - Using bannerImage from sector data */}
+        <div className="absolute inset-0">
+          {sector.bannerImage ? (
+            <img 
+              src={sector.bannerImage} 
+              alt={`${decodedKey} background`}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className={`absolute inset-0 bg-gradient-to-br ${sector.theme}`} />
+          )}
+          <div className="absolute inset-0 bg-black/50" />
         </div>
 
         {/* Content Overlay */}
