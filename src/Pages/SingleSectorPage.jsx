@@ -126,7 +126,7 @@ const SingleSectorPage = () => {
                 <h3 className={`text-xs font-bold uppercase tracking-widest mb-6 ${
                   isDark ? 'text-gray-500' : 'text-gray-400'
                 }`}>
-                  Sector Leader
+                  {sector.leader.role.includes('Chair') ? 'Sector Chair' : 'Sector Leader'}
                 </h3>
                 
                 {/* Leader Photo - Placeholder */}
@@ -157,6 +157,15 @@ const SingleSectorPage = () => {
                 }`}>
                   {sector.leader.role}
                 </p>
+
+                {/* Leader Bio - Only show if available */}
+                {sector.leader.bio && (
+                  <div className={`mt-4 pt-4 border-t ${isDark ? 'border-zinc-800' : 'border-gray-200'}`}>
+                    <p className={`text-sm leading-relaxed ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                      {sector.leader.bio}
+                    </p>
+                  </div>
+                )}
 
                 {/* Contact Placeholder - Add real contact info later */}
                 <div className={`mt-6 pt-6 border-t ${isDark ? 'border-zinc-800' : 'border-gray-200'}`}>
@@ -265,6 +274,39 @@ const SingleSectorPage = () => {
                   ))}
                 </div>
               </div>
+
+              {/* Aims and Objectives - Only for Advertising sector */}
+              {sector.aims && (
+                <div className={`p-8 rounded-3xl border ${
+                  isDark 
+                    ? 'bg-zinc-900 border-zinc-800' 
+                    : 'bg-gray-50 border-gray-100'
+                }`}>
+                  <h3 className={`text-2xl font-bold mb-6 ${
+                    isDark ? 'text-white' : 'text-gray-900'
+                  }`}>
+                    Aims and Objectives
+                  </h3>
+                  <ul className="space-y-4">
+                    {sector.aims.map((aim, index) => (
+                      <motion.li
+                        key={index}
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.5 + index * 0.05 }}
+                        className={`flex items-start gap-4 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}
+                      >
+                        <span className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-xs font-bold ${
+                          isDark ? 'bg-red-600 text-white' : 'bg-red-600 text-white'
+                        }`}>
+                          {index + 1}
+                        </span>
+                        <span className="leading-relaxed">{aim}</span>
+                      </motion.li>
+                    ))}
+                  </ul>
+                </div>
+              )}
 
               {/* CTA Section */}
               <div className="flex flex-wrap gap-4">
