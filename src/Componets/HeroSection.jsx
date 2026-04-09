@@ -15,7 +15,7 @@ const HEADLINES = [
 const STATS = [
   { value: "500+", label: "Members" },
   { value: "60+", label: "Years" },
-  { value: "12", label: "Sectors" },
+  { value: "24", label: "Sectors" },
 ];
 
 const VIDEO_SRC = "https://www.pexels.com/download/video/19115722/";
