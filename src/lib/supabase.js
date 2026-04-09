@@ -150,9 +150,10 @@ export const supabase = {
         single: () => supabaseFetch(`${table}?${columns}=eq.${value}&limit=1`),
         then: function(fn) { return fn(supabaseFetch(`${table}?${columns}=eq.${value}`)); }
       }),
-      order: (column, options = {}) => supabaseFetch(`${table}?order=${column}${options.ascending ? '.asc' : '.desc'}`),
-      range: (from, to) => supabaseFetch(`${table}?range=${from}-${to}`),
-      limit: (count) => supabaseFetch(`${table}?limit=${count}`),
+      order: (column, options = {}) => supabaseFetch(`${table}?order=${column}${options.ascending ? '.asc' : '.desc'}&select=${columns}`),
+      range: (from, to) => supabaseFetch(`${table}?range=${from}-${to}&select=${columns}`),
+      limit: (count) => supabaseFetch(`${table}?limit=${count}&select=${columns}`),
+      single: () => supabaseFetch(`${table}?${columns}=eq.&limit=1`),
       then: function(fn) { return fn(supabaseFetch(`${table}?select=${columns}`)); }
     }),
     

@@ -87,7 +87,7 @@ export function BlogProvider({ children }) {
 
   // Get post by ID
   const getPostById = (id) => {
-    return posts.find(post => post.id === parseInt(id));
+    return posts.find(post => post.id === id || post.id === parseInt(id));
   };
 
   // Add new post

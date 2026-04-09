@@ -5,6 +5,7 @@ import {
     Building2, User, Factory, FileText, Globe, Phone, Mail, MapPin,
     ArrowRight, ArrowLeft, Save, Upload, Check, AlertCircle, X, ChevronDown, ChevronUp, Edit2, Eye, Download, Trash2, Plus, File
 } from 'lucide-react';
+import QRCode from 'qrcode';
 
 const AGI_CONTACT = {
     address: "42 Dr. Isert Street, North Ridge, Accra",
@@ -17,8 +18,8 @@ const AGI_CONTACT = {
 };
 
 const SECTORS = [
-    "Advertising", "Agri-Business", "Automotive", "Beverages", 
-    "Construction", "ICT", "Financial Services", "Hospitality", 
+    "Advertising", "Agri-Business", "Automotive", "Beverages",
+    "Construction", "ICT", "Financial Services", "Hospitality",
     "Oil and Gas", "Mining", "Other"
 ];
 
@@ -46,7 +47,7 @@ const ApplicationPage = () => {
     const [showPdfPreview, setShowPdfPreview] = useState(false);
     const [emailSent, setEmailSent] = useState(false);
     const [selectedDocumentType, setSelectedDocumentType] = useState('business-certificate');
-    
+
     // Review section states
     const [expandedSections, setExpandedSections] = useState({
         personal: true,
@@ -61,7 +62,7 @@ const ApplicationPage = () => {
         serialNumber: '',
         applicationDate: '',
         status: 'pending',
-        
+
         // Part A - Company Address & Location
         organizationName: '',
         postalAddress: '',
@@ -72,21 +73,21 @@ const ApplicationPage = () => {
         website: '',
         factoryLocation: '',
         digitalAddress: '',
-        
+
         // Part A2 - Chief Executive Details
         ceoName: '',
         ceoTitle: '',
         ceoPosition: '',
         ceoContact: '',
         ceoProfile: '',
-        
+
         // Part A3 - Alternative Contact Person
         altContactName: '',
         altContactTitle: '',
         altContactPosition: '',
         altContactPhone: '',
         altContactEmail: '',
-        
+
         // Part B - Statistical Data
         ownershipType: '',
         ownershipPercentGhanaian: '',
@@ -102,7 +103,7 @@ const ApplicationPage = () => {
         currentGNCCI: false,
         currentFAGE: false,
         currentOther: '',
-        
+
         // Part C - Publication Data
         selectedSectors: [],
         mainBusinessArea: '',
@@ -111,7 +112,7 @@ const ApplicationPage = () => {
         productService3: '',
         productService4: '',
         productService5: '',
-        
+
         // Terms
         agreeTerms: false
     });
@@ -157,8 +158,8 @@ const ApplicationPage = () => {
 
     // Update document type for a specific document
     const updateDocumentType = (docId, newType) => {
-        setDocuments(prev => prev.map(doc => 
-            doc.id === docId 
+        setDocuments(prev => prev.map(doc =>
+            doc.id === docId
                 ? { ...doc, type: newType, typeLabel: DOCUMENT_TYPES.find(d => d.value === newType)?.label || 'Document' }
                 : doc
         ));
@@ -191,7 +192,7 @@ const ApplicationPage = () => {
 
     const validateSection = (section) => {
         const newErrors = {};
-        
+
         if (section === 'A') {
             const required = ['organizationName', 'postalAddress', 'town', 'region', 'companyTelephone', 'email'];
             required.forEach(field => {
@@ -203,7 +204,7 @@ const ApplicationPage = () => {
                 newErrors.email = 'Please enter a valid email address';
             }
         }
-        
+
         if (section === 'A2') {
             const required = ['ceoName', 'ceoTitle', 'ceoPosition', 'ceoContact', 'ceoProfile'];
             required.forEach(field => {
@@ -215,7 +216,7 @@ const ApplicationPage = () => {
                 newErrors.ceoProfile = `Profile must be at least 300 words (currently ${formData.ceoProfile.split(/\s+/).filter(w => w.length > 0).length} words)`;
             }
         }
-        
+
         if (section === 'B') {
             const required = ['ownershipType', 'yearOperationsBegan', 'employeeCount', 'companyProfile'];
             required.forEach(field => {
@@ -227,7 +228,7 @@ const ApplicationPage = () => {
                 newErrors.companyProfile = `Profile must be at least 300 words (currently ${formData.companyProfile.split(/\s+/).filter(w => w.length > 0).length} words)`;
             }
         }
-        
+
         if (section === 'C') {
             if (formData.selectedSectors.length === 0) {
                 newErrors.selectedSectors = 'Please select at least one business sector';
@@ -241,7 +242,7 @@ const ApplicationPage = () => {
                 newErrors.products = 'Please add at least one product or service';
             }
         }
-        
+
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
@@ -274,11 +275,11 @@ const ApplicationPage = () => {
             return;
         }
         setIsSubmitting(true);
-        
+
         // Generate serial number and application date
         const serialNumber = generateSerialNumber();
         const applicationDate = new Date().toISOString();
-        
+
         // Update form data with serial number and date
         const submittedData = {
             ...formData,
@@ -286,7 +287,7 @@ const ApplicationPage = () => {
             applicationDate,
             status: 'pending'
         };
-        
+
         // Save to localStorage for admin tracking
         const existingApplications = JSON.parse(localStorage.getItem('agi_applications') || '[]');
         existingApplications.push({
@@ -295,12 +296,12 @@ const ApplicationPage = () => {
             submittedAt: applicationDate
         });
         localStorage.setItem('agi_applications', JSON.stringify(existingApplications));
-        
+
         // Simulate form submission and email sending
         setTimeout(() => {
             setIsSubmitting(false);
             setEmailSent(true);
-            
+
             // Show success and navigate
             navigate('/success', {
                 state: {
@@ -341,237 +342,401 @@ const ApplicationPage = () => {
     };
 
     // Generate PDF with AGI logo and company logo support
+    // Add this import at the top of your file (after other imports)
+
+    // Then replace your generateAndDownloadPDF function with this:
     const generateAndDownloadPDF = async () => {
         const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        
+        const doc = new jsPDF("p", "mm", "a4");
+
         const pageWidth = doc.internal.pageSize.getWidth();
-        const margin = 15;
-        let yPos = 15;
-        
-        // Professional Header - White background with border
+        const pageHeight = doc.internal.pageSize.getHeight();
+
+        const margin = 18;
+        const contentWidth = pageWidth - (margin * 2);
+        const colGap = 8;
+        const colWidth = (contentWidth - colGap) / 2;
+
+        let yPos = 25;
+
+        const COLORS = {
+            primary: [178, 34, 52],
+            dark: [28, 28, 30],
+            light: [100, 100, 110],
+            border: [215, 225, 235],
+            white: [255, 255, 255]
+        };
+
+        const cleanText = (text) => {
+            if (!text) return "";
+            return String(text).replace(/[^\w\s\.,\-\(\)\/]/g, '').replace(/[•°■□▸▪➢➤→←↑↓★☆✓✔✗✘⚡🔥💼🏢👤📊⚙️📎✍️🔐🧾🧭🚀]/g, '');
+        };
+
+        // Generate Document ID
+        const docId = `AGI-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+
+        // ============================================
+        // RED HEADER BAR
+        // ============================================
+        doc.setFillColor(...COLORS.primary);
+        doc.rect(0, 0, pageWidth, 38, 'F');
+
+        doc.setTextColor(...COLORS.white);
+
+        // Logo
+        const logoSize = 18;
         doc.setFillColor(255, 255, 255);
-        doc.rect(margin - 5, 5, pageWidth - 2 * margin + 10, 45, 'F');
-        doc.setDrawColor(180, 180, 180);
-        doc.setLineWidth(0.3);
-        doc.rect(margin - 5, 5, pageWidth - 2 * margin + 10, 45, 'S');
-        
-        // Left side - Logo
-        const logoSize = 28;
-        doc.setFillColor(163, 42, 42);
-        doc.roundedRect(margin, 12, logoSize, logoSize, 2, 2, 'F');
-        
-        // Try to add AGI Logo inside red container
+        doc.roundedRect(margin, 6, logoSize, logoSize, 3, 3, 'F');
+
+        let logoLoaded = false;
         try {
-            const logoImg = new Image();
-            logoImg.crossOrigin = 'anonymous';
-            logoImg.src = AGI_CONTACT.logoUrl;
-            await new Promise((resolve, reject) => {
-                logoImg.onload = resolve;
-                logoImg.onerror = reject;
-                setTimeout(reject, 3000);
+            const img = new Image();
+            img.crossOrigin = "anonymous";
+            img.src = AGI_CONTACT.logoUrl;
+
+            await new Promise((res, rej) => {
+                img.onload = res;
+                img.onerror = rej;
+                setTimeout(() => rej(new Error('timeout')), 2000);
             });
-            doc.addImage(logoImg, 'PNG', margin + 2, 14, 24, 24);
-        } catch (e) {
-            console.log('Logo not available');
+
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0);
+            const colorImageData = canvas.toDataURL('image/png');
+            doc.addImage(colorImageData, "PNG", margin + 2, 8, 14, 14);
+            logoLoaded = true;
+        } catch (error) {
+            console.warn("Logo image failed, using text logo");
         }
-        
-        // Company name - AFRICAN GLOBAL INITIATIVE as requested
-        doc.setTextColor(30, 41, 59);
-        doc.setFontSize(16);
-        doc.setFont('helvetica', 'bold');
-        doc.text('AFRICAN GLOBAL INITIATIVE', margin + 35, 18);
-        
-        // Tagline
-        doc.setFontSize(9);
-        doc.setFont('helvetica', 'normal');
-        doc.setTextColor(100, 100, 100);
-        doc.text('Membership Application Form', margin + 35, 24);
-        
-        // Right side - Contact Information
-        const rightCol = pageWidth - margin - 55;
-        doc.setFontSize(7);
-        doc.setTextColor(60, 60, 60);
-        
-        doc.text('42 Dr. Isert Street, North Ridge, Accra', rightCol, 14);
-        doc.text('Digital Address: GA-014-5066', rightCol, 19);
-        doc.text('Phone: (0302) 251266 | 986730', rightCol, 24);
-        doc.text('Email: agi@agighana.org', rightCol, 29);
-        doc.text('Website: www.agighana.org', rightCol, 34);
-        
-        // Application Details Section
-        yPos = 58;
-        
-        // Application details box
-        doc.setFillColor(248, 250, 252);
-        doc.rect(margin - 5, yPos, pageWidth - 2 * margin + 10, 18, 'F');
-        doc.setDrawColor(200, 200, 200);
-        doc.setLineWidth(0.2);
-        doc.rect(margin - 5, yPos, pageWidth - 2 * margin + 10, 18, 'S');
-        
+
+        if (!logoLoaded) {
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(12);
+            doc.setTextColor(...COLORS.primary);
+            doc.text("AGI", margin + 4, 19);
+            doc.setTextColor(...COLORS.white);
+        }
+
+        const textX = margin + logoSize + 6;
+
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(14);
+        doc.text("ASSOCIATION OF GHANA INDUSTRIES", textX, 18);
+
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(8);
+        doc.text("Membership Application Form", textX, 26);
+
+        doc.setTextColor(...COLORS.dark);
+
+        // Contact info
+        yPos = 48;
+        doc.setFontSize(7.5);
+        doc.setTextColor(...COLORS.light);
+        doc.text(
+            `${AGI_CONTACT.address}   |   ${AGI_CONTACT.phone}   |   ${AGI_CONTACT.email}`,
+            pageWidth / 2,
+            yPos,
+            { align: "center" }
+        );
+
         yPos += 8;
-        doc.setFontSize(9);
-        doc.setFont('helvetica', 'bold');
-        doc.setTextColor(30, 41, 59);
-        
-        // Application details - two columns
-        const col1 = margin + 2;
-        const col2 = margin + 60;
-        const col3 = margin + 110;
-        const col4 = margin + 150;
-        
-        // Row 1
-        doc.text('Application Serial No:', col1, yPos);
-        doc.setFont('helvetica', 'normal');
-        doc.setTextColor(163, 42, 42);
-        doc.text(formData.serialNumber || 'N/A', col1 + 38, yPos);
-        
-        doc.setFont('helvetica', 'bold');
-        doc.setTextColor(30, 41, 59);
-        doc.text('Member Name:', col2, yPos);
-        doc.setFont('helvetica', 'normal');
-        doc.text(formData.organizationName || 'N/A', col2 + 25, yPos);
-        
-        doc.setFont('helvetica', 'bold');
-        doc.setTextColor(30, 41, 59);
-        doc.text('Membership Type:', col3, yPos);
-        doc.setFont('helvetica', 'normal');
-        doc.text(formData.ownershipType || 'N/A', col3 + 32, yPos);
-        
-        // Row 2
-        yPos += 7;
-        doc.setFont('helvetica', 'bold');
-        doc.setTextColor(30, 41, 59);
-        doc.text('Application Date:', col1, yPos);
-        doc.setFont('helvetica', 'normal');
-        doc.text(new Date().toLocaleDateString(), col1 + 32, yPos);
-        
-        doc.setFont('helvetica', 'bold');
-        doc.setTextColor(30, 41, 59);
-        doc.text('Status:', col2, yPos);
-        doc.setFont('helvetica', 'normal');
-        doc.setTextColor(202, 138, 4);
-        doc.text('PENDING', col2 + 15, yPos);
-        
-        yPos += 15;
-        
-        // Reset text color
-        doc.setTextColor(0, 0, 0);
-        
-        // Helper function to add section
+
+        // Document ID display - Added back
+        doc.setFillColor(245, 248, 250);
+        doc.roundedRect(pageWidth - margin - 65, yPos - 2, 65, 5, 2, 2, 'F');
+        doc.setFontSize(6.5);
+        doc.setTextColor(...COLORS.light);
+        doc.text(`Document ID: ${docId}`, pageWidth - margin - 62, yPos + 1);
+
+        yPos += 6;
+
+        doc.setDrawColor(...COLORS.border);
+        doc.setLineWidth(0.5);
+        doc.line(margin, yPos, pageWidth - margin, yPos);
+        yPos += 8;
+
+        // ============================================
+        // HELPER FUNCTIONS
+        // ============================================
         const addSection = (title) => {
-            yPos += 5;
-            if (yPos > 265) {
+            if (yPos > 250) {
                 doc.addPage();
                 yPos = 20;
+                // Re-add Document ID on new page
+                doc.setFillColor(245, 248, 250);
+                doc.roundedRect(pageWidth - margin - 65, yPos - 2, 65, 5, 2, 2, 'F');
+                doc.setFontSize(6.5);
+                doc.setTextColor(...COLORS.light);
+                doc.text(`Document ID: ${docId}`, pageWidth - margin - 62, yPos + 1);
+                yPos += 6;
             }
-            doc.setFillColor(163, 42, 42);
-            doc.rect(margin, yPos, pageWidth - 2 * margin, 7, 'F');
-            doc.setTextColor(255, 255, 255);
-            doc.setFontSize(9);
-            doc.setFont('helvetica', 'bold');
-            doc.text(title, margin + 3, yPos + 5);
-            yPos += 10;
-            doc.setTextColor(0, 0, 0);
-            doc.setFont('helvetica', 'normal');
-            doc.setFontSize(9);
+
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(11);
+            doc.setTextColor(...COLORS.primary);
+            doc.text(title, margin, yPos);
+
+            doc.setDrawColor(...COLORS.primary);
+            doc.setLineWidth(0.3);
+            doc.line(margin, yPos + 2, margin + 55, yPos + 2);
+
+            yPos += 8;
         };
-        
-        // Helper function to add field
-        const addField = (label, value) => {
+
+        const addRow = (l1, v1, l2, v2) => {
             if (yPos > 270) {
                 doc.addPage();
                 yPos = 20;
+                // Re-add Document ID on new page
+                doc.setFillColor(245, 248, 250);
+                doc.roundedRect(pageWidth - margin - 65, yPos - 2, 65, 5, 2, 2, 'F');
+                doc.setFontSize(6.5);
+                doc.setTextColor(...COLORS.light);
+                doc.text(`Document ID: ${docId}`, pageWidth - margin - 62, yPos + 1);
+                yPos += 6;
             }
-            doc.setFont('helvetica', 'bold');
+
+            doc.setFont("helvetica", "normal");
             doc.setFontSize(8);
-            doc.text(label, margin, yPos);
-            doc.setFont('helvetica', 'normal');
-            doc.text(value || '-', margin + 55, yPos);
-            yPos += 6;
+            doc.setTextColor(...COLORS.light);
+            doc.text(cleanText(l1), margin, yPos);
+
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(9.5);
+            const val1 = cleanText(v1 && v1 !== "" ? v1 : "Not provided");
+            doc.setTextColor(...COLORS.dark);
+
+            const maxWidth = l2 ? colWidth - 5 : contentWidth - 10;
+            const lines1 = doc.splitTextToSize(val1, maxWidth);
+            doc.text(lines1, margin, yPos + 5);
+            let lineHeight = 5 + (lines1.length * 4);
+
+            if (l2) {
+                doc.setFont("helvetica", "normal");
+                doc.setFontSize(8);
+                doc.setTextColor(...COLORS.light);
+                doc.text(cleanText(l2), margin + colWidth + colGap, yPos);
+
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(9.5);
+                const val2 = cleanText(v2 && v2 !== "" ? v2 : "Not provided");
+                doc.setTextColor(...COLORS.dark);
+                const lines2 = doc.splitTextToSize(val2, colWidth - 5);
+                doc.text(lines2, margin + colWidth + colGap, yPos + 5);
+                lineHeight = Math.max(lineHeight, 5 + (lines2.length * 4));
+            }
+
+            doc.setTextColor(...COLORS.dark);
+            yPos += lineHeight + 4;
         };
-        
-        // Part A: Company Details
-        addSection('PART A: Company Address & Location');
-        addField('Organization Name:', formData.organizationName);
-        addField('Postal Address:', formData.postalAddress);
-        addField('Town:', formData.town);
-        addField('Region:', formData.region);
-        addField('Company Telephone:', formData.companyTelephone);
-        addField('Email:', formData.email);
-        addField('Website:', formData.website);
-        addField('Digital Address:', formData.digitalAddress);
-        
-        // Part A2: CEO Details
-        addSection('PART A2: Chief Executive Details');
-        addField('CEO Name:', `${formData.ceoTitle} ${formData.ceoName}`);
-        addField('Position:', formData.ceoPosition);
-        addField('Contact:', formData.ceoContact);
-        addField('Profile Words:', `${wordCount(formData.ceoProfile)} words`);
-        
-        // Alternative Contact
+
+        const addFullRow = (label, value) => {
+            if (yPos > 270) {
+                doc.addPage();
+                yPos = 20;
+                // Re-add Document ID on new page
+                doc.setFillColor(245, 248, 250);
+                doc.roundedRect(pageWidth - margin - 65, yPos - 2, 65, 5, 2, 2, 'F');
+                doc.setFontSize(6.5);
+                doc.setTextColor(...COLORS.light);
+                doc.text(`Document ID: ${docId}`, pageWidth - margin - 62, yPos + 1);
+                yPos += 6;
+            }
+
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(8);
+            doc.setTextColor(...COLORS.light);
+            doc.text(cleanText(label), margin, yPos);
+
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(9.5);
+            const val = cleanText(value && value !== "" ? value : "Not provided");
+            doc.setTextColor(...COLORS.dark);
+
+            const lines = doc.splitTextToSize(val, contentWidth - 10);
+            doc.text(lines, margin, yPos + 5);
+            yPos += 8 + (lines.length * 4);
+        };
+
+        // ============================================
+        // COMPANY DETAILS
+        // ============================================
+        addSection("COMPANY DETAILS");
+        addRow("Organization Name", formData.organizationName, "Town or City", formData.town);
+        addRow("Postal Address", formData.postalAddress, "Region", formData.region);
+        addRow("Phone Number", formData.companyTelephone, "Email Address", formData.email);
+        if (formData.website) addRow("Website", formData.website, "", "");
+
+        // ============================================
+        // CEO DETAILS
+        // ============================================
+        addSection("CHIEF EXECUTIVE DETAILS");
+        const ceoFullName = formData.ceoTitle ? `${formData.ceoTitle} ${formData.ceoName}` : formData.ceoName;
+        addRow("Full Name", ceoFullName, "Position", formData.ceoPosition);
+        addRow("Contact Number", formData.ceoContact, "", "");
+
+        // ============================================
+        // ALTERNATIVE CONTACT
+        // ============================================
         if (formData.altContactName) {
-            addSection('PART A3: Alternative Contact Person');
-            addField('Name:', `${formData.altContactTitle} ${formData.altContactName}`);
-            addField('Position:', formData.altContactPosition);
-            addField('Phone:', formData.altContactPhone);
-            addField('Email:', formData.altContactEmail);
+            addSection("ALTERNATIVE CONTACT PERSON");
+            addRow("Full Name", formData.altContactName, "Title", formData.altContactTitle);
+            addRow("Position", formData.altContactPosition, "Phone Number", formData.altContactPhone);
+            if (formData.altContactEmail) addRow("Email Address", formData.altContactEmail, "", "");
         }
-        
-        // Part B: Statistical Data
-        addSection('PART B: Statistical Data');
-        addField('Ownership Type:', formData.ownershipType);
-        addField('% Ghanaian:', formData.ownershipPercentGhanaian ? `${formData.ownershipPercentGhanaian}%` : '-');
-        addField('% Foreign:', formData.ownershipPercentForeign ? `${formData.ownershipPercentForeign}%` : '-');
-        addField('Year Began:', formData.yearOperationsBegan);
-        addField('Employees:', formData.employeeCount);
-        addField('Turnover (USD):', formData.turnover);
-        addField('Export Markets:', formData.exportMarkets);
-        addField('Import %:', formData.importPercentage ? `${formData.importPercentage}%` : '-');
-        
-        // Part C: Publication Data
-        addSection('PART C: Business Activity');
-        addField('Sectors:', formData.selectedSectors.join(', '));
-        addField('Main Business:', formData.mainBusinessArea);
-        
-        // Products/Services
-        const products = [
-            formData.productService1,
-            formData.productService2,
-            formData.productService3,
-            formData.productService4,
-            formData.productService5
-        ].filter(p => p);
-        
+
+        // ============================================
+        // BUSINESS DATA
+        // ============================================
+        addSection("BUSINESS AND FINANCIAL DATA");
+        addRow("Ownership Structure", formData.ownershipType, "Total Employees", formData.employeeCount);
+        if (formData.ownershipPercentGhanaian) {
+            addRow("Ghanaian Ownership", `${formData.ownershipPercentGhanaian}%`, "Foreign Ownership", `${formData.ownershipPercentForeign || 0}%`);
+        }
+        addRow("Year Operations Began", formData.yearOperationsBegan, "Annual Turnover", formData.turnover || "Not Disclosed");
+        addRow("Export Markets", formData.exportMarkets || "None", "Trade Fair Interest", formData.interestTradeFairs || "Not specified");
+
+        // Company Profile
+        if (formData.companyProfile && formData.companyProfile.trim().length > 0) {
+            addFullRow("Company Profile", formData.companyProfile);
+        }
+
+        // CEO Profile
+        if (formData.ceoProfile && formData.ceoProfile.trim().length > 0) {
+            addFullRow("CEO Profile", formData.ceoProfile);
+        }
+
+        // ============================================
+        // BUSINESS ACTIVITY
+        // ============================================
+        addSection("CORE BUSINESS ACTIVITY");
+        const sectorsFormatted = Array.isArray(formData.selectedSectors)
+            ? formData.selectedSectors.join(", ")
+            : (formData.selectedSectors || "Not specified");
+        addRow("Industry Sectors", sectorsFormatted, "Main Business Area", formData.mainBusinessArea);
+
+        const products = [formData.productService1, formData.productService2, formData.productService3, formData.productService4, formData.productService5].filter(p => p && p.trim());
         if (products.length > 0) {
-            addField('Products/Services:', products.join(', '));
+            addFullRow("Products and Services", products.join(", "));
         }
-        
-        // Documents Section - Show all uploaded documents with their types
-        addSection('UPLOADED DOCUMENTS');
+
+        // ============================================
+        // MEMBERSHIPS
+        // ============================================
+        const memberships = [];
+        if (formData.currentGEA) memberships.push("Ghana Employers Association (GEA)");
+        if (formData.currentGNCCI) memberships.push("Ghana National Chamber of Commerce (GNCCI)");
+        if (formData.currentFAGE) memberships.push("FAGE");
+        if (formData.currentOther) memberships.push(formData.currentOther);
+        if (memberships.length > 0) {
+            addSection("CURRENT MEMBERSHIPS");
+            addFullRow("Member Organizations", memberships.join(", "));
+        }
+
+        // ============================================
+        // DOCUMENTS
+        // ============================================
         if (documents.length > 0) {
-            documents.forEach((docItem, index) => {
-                addField(`${index + 1}. ${docItem.typeLabel}:`, docItem.name);
-            });
-        } else {
-            addField('Documents:', 'No documents uploaded');
+            addSection("SUPPORTING DOCUMENTS");
+            const docList = documents.map((doc, idx) => `${idx + 1}. ${cleanText(doc.typeLabel)}: ${cleanText(doc.name)}`).join("\n");
+            addFullRow("Uploaded Files", docList);
         }
-        
-        // Memberships
-        addSection('CURRENT MEMBERSHIPS');
-        addField('Organizations:', getMemberships());
-        
-        // Footer
-        yPos = 270;
+
+        // ============================================
+        // AUTHORIZATION
+        // ============================================
+        addSection("AUTHORIZATION AND SIGN OFF");
+
+        const currentDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
         doc.setFontSize(8);
-        doc.setTextColor(100, 100, 100);
-        doc.text(`Generated: ${new Date().toLocaleString()}`, margin, yPos);
-        doc.text(AGI_CONTACT.address, pageWidth / 2, yPos + 5, { align: 'center' });
-        doc.text(`${AGI_CONTACT.phone} | ${AGI_CONTACT.email}`, pageWidth / 2, yPos + 10, { align: 'center' });
-        
-        // Save the PDF
-        doc.save(`AGI_Membership_${formData.organizationName.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`);
+        doc.setTextColor(...COLORS.light);
+        doc.text(`Date: ${currentDate}`, margin, yPos + 5);
+        yPos += 12;
+
+        doc.setDrawColor(180, 180, 190);
+        doc.setLineWidth(0.4);
+
+        doc.line(margin, yPos + 5, margin + 70, yPos + 5);
+        doc.setFontSize(7.5);
+        doc.setTextColor(120, 120, 130);
+        doc.text("Applicant Signature", margin, yPos + 11);
+
+        doc.line(pageWidth - margin - 75, yPos + 5, pageWidth - margin, yPos + 5);
+        doc.text("Official Company Stamp", pageWidth - margin - 72, yPos + 11);
+
+        doc.line(margin, yPos + 20, margin + 70, yPos + 20);
+        doc.text("Printed Name and Title", margin, yPos + 26);
+
+        yPos += 40;
+
+        // ============================================
+        // QR CODE
+        // ============================================
+        const verificationURL = `https://agi.gh/verify/${docId}`;
+
+        try {
+            const qrCodeDataURL = await QRCode.toDataURL(verificationURL, {
+                width: 180,
+                margin: 2,
+                color: {
+                    dark: '#B22234',
+                    light: '#FFFFFF'
+                }
+            });
+
+            if (qrCodeDataURL && qrCodeDataURL.length > 100) {
+                const qrSize = 32;
+                const qrX = pageWidth - margin - qrSize;
+                const qrY = yPos;
+
+                doc.setFillColor(255, 255, 255);
+                doc.roundedRect(qrX - 3, qrY - 3, qrSize + 6, qrSize + 6, 3, 3, 'F');
+                doc.setDrawColor(...COLORS.border);
+                doc.roundedRect(qrX - 3, qrY - 3, qrSize + 6, qrSize + 6, 3, 3, 'S');
+
+                doc.addImage(qrCodeDataURL, "PNG", qrX, qrY, qrSize, qrSize);
+
+                doc.setFontSize(6);
+                doc.setTextColor(...COLORS.primary);
+                doc.text("Scan to Verify", qrX + 2, qrY + qrSize + 5);
+                doc.setFontSize(5);
+                doc.setTextColor(...COLORS.light);
+                doc.text("AGI Secure", qrX + 6, qrY + qrSize + 10);
+            }
+        } catch (err) {
+            console.warn("QR generation failed:", err);
+            doc.setFontSize(7);
+            doc.setTextColor(...COLORS.light);
+            doc.text(`Application ID: ${docId.slice(-16)}`, pageWidth - margin - 55, yPos + 15);
+        }
+
+        // ============================================
+        // FOOTER
+        // ============================================
+        const footerY = pageHeight - 12;
+
+        doc.setDrawColor(...COLORS.border);
+        doc.setLineWidth(0.3);
+        doc.line(margin, footerY - 5, pageWidth - margin, footerY - 5);
+
+        doc.setFontSize(6.5);
+        doc.setTextColor(130, 130, 145);
+        doc.text(`Generated: ${new Date().toLocaleString()}`, margin, footerY);
+        doc.text("Association of Ghana Industries", pageWidth / 2, footerY, { align: "center" });
+
+        // ============================================
+        // SAVE
+        // ============================================
+        const safeName = (formData.organizationName || "Application")
+            .replace(/[^a-z0-9]/gi, "_")
+            .substring(0, 40);
+        doc.save(`AGI_Membership_${safeName}.pdf`);
     };
+
 
     // Preview PDF Content
     const PreviewPDFContent = () => (
@@ -589,7 +754,7 @@ const ApplicationPage = () => {
                     )}
                 </div>
             </div>
-            
+
             <div className="space-y-4">
                 <div className="border-b-2 border-red-600 pb-1">
                     <h4 className="font-bold text-red-700">PART A: Company Address & Location</h4>
@@ -600,7 +765,7 @@ const ApplicationPage = () => {
                     <div><span className="font-medium text-gray-500">Town:</span> <span className="text-gray-900">{formData.town || '-'}</span></div>
                     <div><span className="font-medium text-gray-500">Region:</span> <span className="text-gray-900">{formData.region || '-'}</span></div>
                 </div>
-                
+
                 <div className="border-b-2 border-red-600 pb-1 mt-4">
                     <h4 className="font-bold text-red-700">PART A2: Chief Executive</h4>
                 </div>
@@ -608,7 +773,7 @@ const ApplicationPage = () => {
                     <div><span className="font-medium text-gray-500">CEO:</span> <span className="text-gray-900">{formData.ceoTitle} {formData.ceoName || '-'}</span></div>
                     <div><span className="font-medium text-gray-500">Position:</span> <span className="text-gray-900">{formData.ceoPosition || '-'}</span></div>
                 </div>
-                
+
                 <div className="border-b-2 border-red-600 pb-1 mt-4">
                     <h4 className="font-bold text-red-700">PART B: Business Statistics</h4>
                 </div>
@@ -616,12 +781,12 @@ const ApplicationPage = () => {
                     <div><span className="font-medium text-gray-500">Ownership:</span> <span className="text-gray-900">{formData.ownershipType || '-'}</span></div>
                     <div><span className="font-medium text-gray-500">Employees:</span> <span className="text-gray-900">{formData.employeeCount || '-'}</span></div>
                 </div>
-                
+
                 <div className="border-b-2 border-red-600 pb-1 mt-4">
                     <h4 className="font-bold text-red-700">PART C: Business Activity</h4>
                 </div>
                 <div><span className="font-medium text-gray-500">Sectors:</span> <span className="text-gray-900 ml-2">{formData.selectedSectors.join(', ') || '-'}</span></div>
-                
+
                 <div className="border-b-2 border-red-600 pb-1 mt-4">
                     <h4 className="font-bold text-red-700">UPLOADED DOCUMENTS</h4>
                 </div>
@@ -649,9 +814,9 @@ const ApplicationPage = () => {
                     <div className="flex justify-center mb-4">
                         <div className="bg-white text-slate-800 px-6 py-4 rounded-lg font-bold text-lg flex items-center gap-3 shadow-lg border-2 border-gray-200">
                             <div className="w-12 h-12 flex items-center justify-center bg-red-600 rounded-lg">
-                                <img 
-                                    src={AGI_CONTACT.logoUrl} 
-                                    alt="AGI Logo" 
+                                <img
+                                    src={AGI_CONTACT.logoUrl}
+                                    alt="AGI Logo"
                                     className="w-10 h-10 object-contain"
                                 />
                             </div>
@@ -687,7 +852,7 @@ const ApplicationPage = () => {
                             <React.Fragment key={section.id}>
                                 <button
                                     onClick={() => {
-                                        if (section.id === 'A' || 
+                                        if (section.id === 'A' ||
                                             (section.id === 'B' && validateSection('A') && validateSection('A2')) ||
                                             (section.id === 'C' && validateSection('A') && validateSection('A2') && validateSection('B'))) {
                                             setCurrentSection(section.id);
@@ -720,28 +885,28 @@ const ApplicationPage = () => {
                                 exit={{ opacity: 0, x: -20 }}
                                 className="p-6 md:p-8"
                             >
-                                <SectionHeader 
-                                    title="PART A: Company Address & Location" 
+                                <SectionHeader
+                                    title="PART A: Company Address & Location"
                                     icon={<Building2 className="text-red-600" size={24} />}
                                 />
-                                
+
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                                    <FormInput 
-                                        label="Organization Name *" 
+                                    <FormInput
+                                        label="Organization Name *"
                                         placeholder="Enter registered company name"
                                         value={formData.organizationName}
                                         onChange={(v) => updateField('organizationName', v)}
                                         error={errors.organizationName}
                                     />
-                                    <FormInput 
-                                        label="Postal Address *" 
+                                    <FormInput
+                                        label="Postal Address *"
                                         placeholder="P.O. Box, City, Country"
                                         value={formData.postalAddress}
                                         onChange={(v) => updateField('postalAddress', v)}
                                         error={errors.postalAddress}
                                     />
-                                    <FormInput 
-                                        label="Town *" 
+                                    <FormInput
+                                        label="Town *"
                                         placeholder="Enter town"
                                         value={formData.town}
                                         onChange={(v) => updateField('town', v)}
@@ -759,29 +924,29 @@ const ApplicationPage = () => {
                                         </select>
                                         {errors.region && <ErrorMessage msg={errors.region} />}
                                     </div>
-                                    <FormInput 
-                                        label="Company Telephone *" 
+                                    <FormInput
+                                        label="Company Telephone *"
                                         placeholder="e.g. (0302) 123456"
                                         value={formData.companyTelephone}
                                         onChange={(v) => updateField('companyTelephone', v)}
                                         error={errors.companyTelephone}
                                     />
-                                    <FormInput 
-                                        label="Email Address *" 
+                                    <FormInput
+                                        label="Email Address *"
                                         placeholder="company@email.com"
                                         type="email"
                                         value={formData.email}
                                         onChange={(v) => updateField('email', v)}
                                         error={errors.email}
                                     />
-                                    <FormInput 
-                                        label="Website" 
+                                    <FormInput
+                                        label="Website"
                                         placeholder="www.company.com"
                                         value={formData.website}
                                         onChange={(v) => updateField('website', v)}
                                     />
-                                    <FormInput 
-                                        label="Digital Address" 
+                                    <FormInput
+                                        label="Digital Address"
                                         placeholder="e.g. GA-014-5066"
                                         value={formData.digitalAddress}
                                         onChange={(v) => updateField('digitalAddress', v)}
@@ -794,7 +959,7 @@ const ApplicationPage = () => {
                                         <File className="text-red-600" size={20} />
                                         Upload Supporting Documents
                                     </h3>
-                                    
+
                                     {/* Document Type Selection */}
                                     <div className="flex flex-wrap items-end gap-4 mb-4">
                                         <div className="flex-1 min-w-[200px]">
@@ -851,42 +1016,42 @@ const ApplicationPage = () => {
                                             ))}
                                         </div>
                                     )}
-                                    
+
                                     {documents.length === 0 && (
                                         <p className="text-sm text-gray-700 italic">No documents uploaded yet. Please upload your business certificate, passport photo, and other required documents.</p>
                                     )}
                                 </div>
 
-                                <SectionHeader 
-                                    title="PART A2: Chief Executive Details" 
+                                <SectionHeader
+                                    title="PART A2: Chief Executive Details"
                                     icon={<User className="text-red-600" size={24} />}
                                     className="mt-10"
                                 />
-                                
+
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                                    <FormInput 
-                                        label="Full Name *" 
+                                    <FormInput
+                                        label="Full Name *"
                                         placeholder="CEO/Managing Director full name"
                                         value={formData.ceoName}
                                         onChange={(v) => updateField('ceoName', v)}
                                         error={errors.ceoName}
                                     />
-                                    <FormInput 
-                                        label="Title *" 
+                                    <FormInput
+                                        label="Title *"
                                         placeholder="e.g. Mr., Mrs., Ms., Dr."
                                         value={formData.ceoTitle}
                                         onChange={(v) => updateField('ceoTitle', v)}
                                         error={errors.ceoTitle}
                                     />
-                                    <FormInput 
-                                        label="Position *" 
+                                    <FormInput
+                                        label="Position *"
                                         placeholder="e.g. Managing Director, CEO"
                                         value={formData.ceoPosition}
                                         onChange={(v) => updateField('ceoPosition', v)}
                                         error={errors.ceoPosition}
                                     />
-                                    <FormInput 
-                                        label="Contact Number *" 
+                                    <FormInput
+                                        label="Contact Number *"
                                         placeholder="Phone number"
                                         value={formData.ceoContact}
                                         onChange={(v) => updateField('ceoContact', v)}
@@ -914,39 +1079,39 @@ const ApplicationPage = () => {
                                     </div>
                                 </div>
 
-                                <SectionHeader 
-                                    title="PART A3: Alternative Contact Person (If different from CEO)" 
+                                <SectionHeader
+                                    title="PART A3: Alternative Contact Person (If different from CEO)"
                                     icon={<User className="text-red-600" size={24} />}
                                     className="mt-10"
                                 />
-                                
+
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                                    <FormInput 
-                                        label="Contact Name" 
+                                    <FormInput
+                                        label="Contact Name"
                                         placeholder="Full name"
                                         value={formData.altContactName}
                                         onChange={(v) => updateField('altContactName', v)}
                                     />
-                                    <FormInput 
-                                        label="Title" 
+                                    <FormInput
+                                        label="Title"
                                         placeholder="e.g. Mr., Mrs., Ms., Dr."
                                         value={formData.altContactTitle}
                                         onChange={(v) => updateField('altContactTitle', v)}
                                     />
-                                    <FormInput 
-                                        label="Position" 
+                                    <FormInput
+                                        label="Position"
                                         placeholder="Job title"
                                         value={formData.altContactPosition}
                                         onChange={(v) => updateField('altContactPosition', v)}
                                     />
-                                    <FormInput 
-                                        label="Phone Number" 
+                                    <FormInput
+                                        label="Phone Number"
                                         placeholder="Contact phone"
                                         value={formData.altContactPhone}
                                         onChange={(v) => updateField('altContactPhone', v)}
                                     />
-                                    <FormInput 
-                                        label="Email Address" 
+                                    <FormInput
+                                        label="Email Address"
                                         placeholder="Email address"
                                         value={formData.altContactEmail}
                                         onChange={(v) => updateField('altContactEmail', v)}
@@ -964,11 +1129,11 @@ const ApplicationPage = () => {
                                 exit={{ opacity: 0, x: -20 }}
                                 className="p-6 md:p-8"
                             >
-                                <SectionHeader 
-                                    title="PART B: Statistical Data" 
+                                <SectionHeader
+                                    title="PART B: Statistical Data"
                                     icon={<FileText className="text-red-600" size={24} />}
                                 />
-                                
+
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                                     <div className="space-y-2">
                                         <label className="text-sm font-bold text-gray-700">Ownership Type *</label>
@@ -986,37 +1151,37 @@ const ApplicationPage = () => {
                                         </select>
                                         {errors.ownershipType && <ErrorMessage msg={errors.ownershipType} />}
                                     </div>
-                                    <FormInput 
-                                        label="% Ghanaian Ownership" 
+                                    <FormInput
+                                        label="% Ghanaian Ownership"
                                         placeholder="e.g. 60"
                                         type="number"
                                         value={formData.ownershipPercentGhanaian}
                                         onChange={(v) => updateField('ownershipPercentGhanaian', v)}
                                     />
-                                    <FormInput 
-                                        label="% Foreign Ownership" 
+                                    <FormInput
+                                        label="% Foreign Ownership"
                                         placeholder="e.g. 40"
                                         type="number"
                                         value={formData.ownershipPercentForeign}
                                         onChange={(v) => updateField('ownershipPercentForeign', v)}
                                     />
-                                    <FormInput 
-                                        label="Year Operations Began *" 
+                                    <FormInput
+                                        label="Year Operations Began *"
                                         placeholder="e.g. 2005"
                                         type="number"
                                         value={formData.yearOperationsBegan}
                                         onChange={(v) => updateField('yearOperationsBegan', v)}
                                         error={errors.yearOperationsBegan}
                                     />
-                                    <FormInput 
-                                        label="Number of Employees *" 
+                                    <FormInput
+                                        label="Number of Employees *"
                                         placeholder="e.g. 50"
                                         value={formData.employeeCount}
                                         onChange={(v) => updateField('employeeCount', v)}
                                         error={errors.employeeCount}
                                     />
-                                    <FormInput 
-                                        label="Annual Turnover (USD)" 
+                                    <FormInput
+                                        label="Annual Turnover (USD)"
                                         placeholder="e.g. 500,000"
                                         value={formData.turnover}
                                         onChange={(v) => updateField('turnover', v)}
@@ -1045,20 +1210,20 @@ const ApplicationPage = () => {
                                 </div>
 
                                 <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <FormInput 
-                                        label="Export Markets (if any)" 
+                                    <FormInput
+                                        label="Export Markets (if any)"
                                         placeholder="Countries you export to"
                                         value={formData.exportMarkets}
                                         onChange={(v) => updateField('exportMarkets', v)}
                                     />
-                                    <FormInput 
-                                        label="Interest in Trade Fairs" 
+                                    <FormInput
+                                        label="Interest in Trade Fairs"
                                         placeholder="e.g. Yes, interested in West Africa trade fairs"
                                         value={formData.interestTradeFairs}
                                         onChange={(v) => updateField('interestTradeFairs', v)}
                                     />
-                                    <FormInput 
-                                        label="Import Percentage" 
+                                    <FormInput
+                                        label="Import Percentage"
                                         percentage
                                         placeholder="e.g. 30%"
                                         value={formData.importPercentage}
@@ -1069,24 +1234,24 @@ const ApplicationPage = () => {
                                 <div className="mt-8">
                                     <label className="text-sm font-bold text-gray-700 mb-4 block">Current Memberships in Other Organizations</label>
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                        <Checkbox 
+                                        <Checkbox
                                             label="Ghana Employers Association (GEA)"
                                             checked={formData.currentGEA}
                                             onChange={(v) => updateField('currentGEA', v)}
                                         />
-                                        <Checkbox 
+                                        <Checkbox
                                             label="Ghana National Chamber of Commerce (GNCCI)"
                                             checked={formData.currentGNCCI}
                                             onChange={(v) => updateField('currentGNCCI', v)}
                                         />
-                                        <Checkbox 
+                                        <Checkbox
                                             label="FAGE (Federation of Association of Ghanaian Exporters)"
                                             checked={formData.currentFAGE}
                                             onChange={(v) => updateField('currentFAGE', v)}
                                         />
                                     </div>
                                     <div className="mt-4">
-                                        <FormInput 
+                                        <FormInput
                                             label="Other Organizations"
                                             placeholder="List any other business associations"
                                             value={formData.currentOther}
@@ -1106,11 +1271,11 @@ const ApplicationPage = () => {
                                 exit={{ opacity: 0, x: -20 }}
                                 className="p-6 md:p-8"
                             >
-                                <SectionHeader 
-                                    title="PART C: Publication Data" 
+                                <SectionHeader
+                                    title="PART C: Publication Data"
                                     icon={<Factory className="text-red-600" size={24} />}
                                 />
-                                
+
                                 <div className="mt-6">
                                     <label className="text-sm font-bold text-gray-700 mb-4 block">
                                         Business Activity Sectors * (Select up to 3)
@@ -1122,11 +1287,10 @@ const ApplicationPage = () => {
                                                 key={sector}
                                                 type="button"
                                                 onClick={() => toggleSector(sector)}
-                                                className={`p-3 rounded-lg border-2 text-sm font-medium transition-all ${
-                                                    formData.selectedSectors.includes(sector)
-                                                        ? 'border-red-600 bg-red-50 text-red-700'
-                                                        : 'border-gray-200 hover:border-gray-300 text-gray-600'
-                                                }`}
+                                                className={`p-3 rounded-lg border-2 text-sm font-medium transition-all ${formData.selectedSectors.includes(sector)
+                                                    ? 'border-red-600 bg-red-50 text-red-700'
+                                                    : 'border-gray-200 hover:border-gray-300 text-gray-600'
+                                                    }`}
                                             >
                                                 {formData.selectedSectors.includes(sector) && <Check size={14} className="inline mr-1" />}
                                                 {sector}
@@ -1137,8 +1301,8 @@ const ApplicationPage = () => {
                                 </div>
 
                                 <div className="mt-8">
-                                    <FormInput 
-                                        label="Main Business Area *" 
+                                    <FormInput
+                                        label="Main Business Area *"
                                         placeholder="Describe your main business activities"
                                         value={formData.mainBusinessArea}
                                         onChange={(v) => updateField('mainBusinessArea', v)}
@@ -1152,27 +1316,27 @@ const ApplicationPage = () => {
                                     </label>
                                     {errors.products && <ErrorMessage msg={errors.products} />}
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <ProductInput 
+                                        <ProductInput
                                             number={1}
                                             value={formData.productService1}
                                             onChange={(v) => updateField('productService1', v)}
                                         />
-                                        <ProductInput 
+                                        <ProductInput
                                             number={2}
                                             value={formData.productService2}
                                             onChange={(v) => updateField('productService2', v)}
                                         />
-                                        <ProductInput 
+                                        <ProductInput
                                             number={3}
                                             value={formData.productService3}
                                             onChange={(v) => updateField('productService3', v)}
                                         />
-                                        <ProductInput 
+                                        <ProductInput
                                             number={4}
                                             value={formData.productService4}
                                             onChange={(v) => updateField('productService4', v)}
                                         />
-                                        <ProductInput 
+                                        <ProductInput
                                             number={5}
                                             value={formData.productService5}
                                             onChange={(v) => updateField('productService5', v)}
@@ -1191,8 +1355,8 @@ const ApplicationPage = () => {
                                             className="mt-1 w-4 h-4 accent-red-600"
                                         />
                                         <label htmlFor="agreeTerms" className="text-sm text-gray-700">
-                                            I certify that the information provided in this application is true and accurate. 
-                                            I agree to abide by the Constitution and Code of Ethics of the Association of Ghana Industries (AGI). 
+                                            I certify that the information provided in this application is true and accurate.
+                                            I agree to abide by the Constitution and Code of Ethics of the Association of Ghana Industries (AGI).
                                             I understand that AGI reserves the right to accept or reject this application.
                                         </label>
                                     </div>
@@ -1210,15 +1374,15 @@ const ApplicationPage = () => {
                                 exit={{ opacity: 0, x: -20 }}
                                 className="p-6 md:p-8"
                             >
-                                <SectionHeader 
-                                    title="Review Your Application" 
+                                <SectionHeader
+                                    title="Review Your Application"
                                     icon={<FileText className="text-red-600" size={24} />}
                                 />
-                                
+
                                 <p className="text-gray-500 mt-2 mb-6">Please review all information below before submitting your application.</p>
 
                                 {/* Personal Information Section */}
-                                <ReviewSection 
+                                <ReviewSection
                                     title="Personal Information"
                                     icon={<User className="text-red-600" size={20} />}
                                     isExpanded={expandedSections.personal}
@@ -1235,7 +1399,7 @@ const ApplicationPage = () => {
                                 </ReviewSection>
 
                                 {/* Business Details Section */}
-                                <ReviewSection 
+                                <ReviewSection
                                     title="Business Details"
                                     icon={<Building2 className="text-red-600" size={20} />}
                                     isExpanded={expandedSections.business}
@@ -1251,7 +1415,7 @@ const ApplicationPage = () => {
                                 </ReviewSection>
 
                                 {/* Business Activity Section */}
-                                <ReviewSection 
+                                <ReviewSection
                                     title="Business Activity"
                                     icon={<Factory className="text-red-600" size={20} />}
                                     isExpanded={expandedSections.activity}
@@ -1264,7 +1428,7 @@ const ApplicationPage = () => {
                                 </ReviewSection>
 
                                 {/* Documents Section - Shows all uploaded documents */}
-                                <ReviewSection 
+                                <ReviewSection
                                     title="Documents"
                                     icon={<FileText className="text-red-600" size={20} />}
                                     isExpanded={expandedSections.documents}
@@ -1273,9 +1437,9 @@ const ApplicationPage = () => {
                                 >
                                     {documents.length > 0 ? (
                                         documents.map((doc, idx) => (
-                                            <ReviewField 
-                                                key={doc.id} 
-                                                label={`Document ${idx + 1}`} 
+                                            <ReviewField
+                                                key={doc.id}
+                                                label={`Document ${idx + 1}`}
                                                 value={`${doc.typeLabel}: ${doc.name}`}
                                                 valueClass="text-green-600"
                                             />
@@ -1286,7 +1450,7 @@ const ApplicationPage = () => {
                                 </ReviewSection>
 
                                 {/* Membership Options Section */}
-                                <ReviewSection 
+                                <ReviewSection
                                     title="Membership Options"
                                     icon={<Check className="text-red-600" size={20} />}
                                     isExpanded={expandedSections.membership}
@@ -1309,7 +1473,7 @@ const ApplicationPage = () => {
 
                     {/* Navigation Buttons */}
                     <div className="p-6 md:p-8 border-t border-gray-100 flex justify-between items-center bg-gray-50">
-                        <button 
+                        <button
                             onClick={prevSection}
                             disabled={currentSection === 'A'}
                             className={`flex items-center gap-2 text-sm font-bold transition-colors ${currentSection === 'A' ? 'text-gray-300 cursor-not-allowed' : 'text-gray-600 hover:text-gray-900'}`}
@@ -1339,7 +1503,7 @@ const ApplicationPage = () => {
             {/* Smaller Confirmation Modal */}
             {showConfirm && !showPdfPreview && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                    <motion.div 
+                    <motion.div
                         initial={{ scale: 0.9, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
                         className="bg-white rounded-xl max-w-md w-full p-6"
@@ -1426,7 +1590,7 @@ const ApplicationPage = () => {
             {/* PDF Preview Modal */}
             {showPdfPreview && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-2 md:p-4">
-                    <motion.div 
+                    <motion.div
                         initial={{ scale: 0.9, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
                         className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col"

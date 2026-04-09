@@ -84,7 +84,7 @@ export function MediaProvider({ children }) {
 
   // Get media by ID
   const getMediaById = (id) => {
-    return mediaAssets.find(item => item.id === parseInt(id));
+    return mediaAssets.find(item => item.id === id || item.id === parseInt(id));
   };
 
   // Get unique categories from media
